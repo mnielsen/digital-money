@@ -1084,7 +1084,37 @@ _don't_ yet understand all the implications (nor even 1% of the
 implications).  Nor is it clear that we want a society where this is
 legally possible.  But it sure is interesting to think about!
 
+** Szabo on "Book Consciousness" (2006, 2007)
 
+http://szabo.best.vwh.net/bookconsciousness.html
+
+The key argument has to do with a change in consciousness wrought by printing.  (I am reminded of Harold Bloom, although I suspect Szabo will go in a different direction.)
+
+I wonder if there is an argument for "web consciousness" or "internet consciousness"?
+
+Szabo attributes European naval superiority to literacy - it meant
+that all sorts of charts and tables could be used by officers at sea.
+This is plausible; he doesn't document it, though.  He also notes that
+they were _not_ superior on land.
+
+He attributes a transition in the size of organizations to printing.
+Again, concrete details here are scant.  Plausible, and very
+interesting, if true.  I find it difficult to believe, though -- the
+Romans also maintained very large organizations, without printing.
+
+A very nice example of book consciousness: "FOr the first time,
+[legal] cases and statues were widely and accurately cited."
+Basically, it starts to make it feasible to rely on a set of
+documents.
+
+(This of the modern military without printing!  My understanding is
+that most modern militaries run by book...)
+
+A fascinating graph of real wages versus population over time.  (Hard
+to get accurate data, so I am skeptical).  Four phases: Malthusian
+decline; rapid growth in the 1600s; more Malthusian decline in the
+second half of the 17th century.  Then growth during the 19th century.
+Szabo attempts to connect this to literacy.
 
 * Queue
 
