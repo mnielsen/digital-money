@@ -1,0 +1,1376 @@
+* Thinking about the article or articles
+
+I may write just a single large-scale article: "How Bitcoin works".
+Or I may write a series.  What would a series look like?
+
++ How Bitcoin works: a 
+
+* Notes
+** Transactions
+
+A transaction has a number of inputs and a number of outputs.  The
+inputs are all previous transactions.  They are referred to by their
+hashes.
+
+
+Here's the format for a Bitcoin transaction with 1 input and 1 output only:
+
+Previous tx: hash of the previous transaction.  This is just a label
+for the previous transaction, which everyone
+
+Index: Transactions can have multiple inputs and multiple outputs.
+This says which part of the output of the previous transaction should
+be used.
+
+This suggests to me that the coin base will gradually fragment.
+
+There is a _script_.  This is broken up into two parts, scriptSig, and scriptPubKey.
+
+The public key belongs to the _sender_.  The signature is of a hash of a simplified form of the transaction.
+
+Value: Number of Satoshi to be sent.
+
+You need to send yourself change.  ``Any input bitcoins not redeemed
+in an output is considered a transaction fee; whoever generates the
+block will get it.''
+
+Bitcoin currently creates two different scriptSig/scriptPubKey pairs.
+
+
+Let me try again on the transactions.
+
+Transactions are not encrypted.  They are publicly brodcast.
+
+A transaction has a number of inputs.  These are all previous
+transactions, which have already been accepted into the blockchain.
+
+A transactions has a number of outputs.
+
+Version number: 1
+
+In-counter: Number of inputs to this transaction. 
+
+List of inputs
+
+Out-counter: number of outputs
+
+List of outputs
+
+Lock_time: Not sure what this means.
+
+
+A Bitcoin transaction with one input and one output.
+
+
+Previous Tx: The hash of the previous transaction.
+
+Index: 0.  This just says this imports from output 0 in the previous
+transaction.
+
+The values of the referenced outputs (i.e., the previous transactions)
+are added up.  The total can be used in the outputs of this
+transaction.
+
+The script contains two components.  One is a signature (for the
+transaction).  The other is a public key.  The public key belongs to
+the person who is receiving the transaction.  It proves that the
+recipient is the true recipient.
+
+The combined value of the outputs must be equal to the combined value
+of the inputs.
+
+"An output can only ever be referenced by a single input".  I don't
+quite get this.
+
+If the input is 50 BTC, but you only want to send 25 BTC, then Bitcoin
+will create two outputs, 25 BTC to the destination, and 25 BTC of
+change, routed back to you.
+
+An input not redeemed is a transaction fee, and whoever generates the
+block will get it.
+
+"The input's scriptSig and the referenced [i.e., previous] output's
+scriptPubKey are evaluated (in that order), with scriptPubKey using
+the values left on the stack by scriptSig."  The input is authorized
+if scriptPubKey returns true.
+
+I like this.  It'll require some unpacking to truly understand the
+ramifications.
+
+Bitcoin currently creates two different scriptSig/scriptPubKey pairs.
+
+Pay-to-PubkeyHash
+
+The previous signature is put on the stack.  The previous output
+public key is put on the stack.  The previous output public key is
+duplicated.  The previous output public key is hashed.  The current
+input public key hash is put on the stack. We check that the two
+match, in which case we have agreed upon the public key.  Now we check
+that the signature is valid.
+
+
+A generation is the first transaction in a block.
+
+Alright, I mostly understand transactions now.
+
+Transaction malleability: The signature doesn't cover all the data in
+a transaction that is hashed to create 
+
+
+
+
+
+Previous Tx: The hash of the previous transaction.
+
+Index: 0.  This just says this imports from output 0 in the previous
+transaction.
+
+The values of the referenced outputs (i.e., the previous transactions)
+are added up.  The total can be used in the outputs of this
+transaction.
+
+The script contains two components.  One is a signature (for the
+transaction).  The other is a public key.  The public key belongs to
+the person who is receiving the transaction.  It proves that the
+recipient is the true recipient.
+
+The combined value of the outputs must be equal to the combined value
+of the inputs.
+
+"An output can only ever be referenced by a single input".  I don't
+quite get this.
+
+If the input is 50 BTC, but you only want to send 25 BTC, then Bitcoin
+will create two outputs, 25 BTC to the destination, and 25 BTC of
+change, routed back to you.
+
+An input not redeemed is a transaction fee, and whoever generates the
+block will get it.
+
+"The input's scriptSig and the referenced [i.e., previous] output's
+scriptPubKey are evaluated (in that order), with scriptPubKey using
+the values left on the stack by scriptSig."  The input is authorized
+if scriptPubKey returns true.
+
+I like this.  It'll require some unpacking to truly understand the
+ramifications.
+
+Bitcoin currently creates two different scriptSig/scriptPubKey pairs.
+
+Pay-to-PubkeyHash
+
+The previous signature is put on the stack.  The previous output
+public key is put on the stack.  The previous output public key is
+duplicated.  The previous output public key is hashed.  The current
+input public key hash is put on the stack. We check that the two
+match, in which case we have agreed upon the public key.  Now we check
+that the signature is valid.
+
+
+
+
+
+
+Summary of the main elements of a Bitcoin transaction.
+
+The transaction is labelled by a hash.  This is a hash of parts of the
+remainder of the transaction.  It's not completely clear to me which
+parts --- apparently the transaction is somewhat malleable because of
+this, but the amounts being paid out, senders and recipients can't be
+changed.
+
+A transaction actually doesn't have just one sender and receiver, but
+can potentially involve many parties. 
+
+
+Number of inputs.
+
+Number of outputs.
+
+Each input contains: (1) The hash of (part of) a previous transaction;
+(2) an index for an output in that transaction; (3) the public key of
+the sender; and (4) a signature for (part of) the transaction.
+
+
+
+Each output contains: (1) The value for that output; (2) The hashed
+public key of the intended recipient.
+
+Note that the sum of the output values must equal the sum of the
+inputs.
+
+Why does it contain the hashed public key of the intended recipient?
+I don't really quite get this.
+** The block chain
+
+"A full copy of the block chain contains every transaction ever in
+that currency.  With this information, one can find out how much value
+belongs to each address at any point in history."
+
+"Every block contains a hash of a previous block."  As a result, we
+can figure out the previous block, then the previous block, and so
+on."
+
+We know the chronology (since otherwise the hash wouldn't be known).
+
+This apparently makes double spending hard.  I must admit, I don't
+quite see why.  I suspect I'll need to think hard about the details of
+double spending --- what would you actually try to do.
+
+"Honest generators only build onto a block... if it is the latest
+block in the longest valid chain."  I don't know how they know which
+is the longest valid chain.
+
+"A chain is valid if all the blocks and transactions within it are
+valid, and only if it starts with the genesis block."
+
+"One-block forkes are created from time to time when two blocks are
+created just a few seconds apart.  When that happens, generating nodes
+build onto whichever one of the blocks they received first.  Whiever
+block ends up being included in the next block becomes part of the
+main chan because that chain is longer."
+
+Neat --- basically, we keep track of forks.  Suppose you get two
+blocks, B1 and B2, a few seconds apart.  SO you try to build on B1.
+But most people got B2 first.  So they'll accept B2.  Then it's likely
+that something postdating B2 will appear first.  And so you'll switch
+over.  You'll also rebroadcast the transactions in B1, so they can be
+validated.
+
+So the fork will quickly die out.
+
+"A network-enforced 100-block maturation time for generations exists."
+
+Blocks in the shorter chains are called "orphan" blocks.
+
+Q: Won't the block chain get too large?
+
+Q: Won't transactions overwhelm the network?
+
+Q: WOn't it take too long to validate transactions?  It might take 20 minutes if you're unlucky enough 
+
+** Genesis block
+
+The first block.
+
+The first 50BTC block reward can't be spent due to a quirk in the way
+the genesis block is expressed in code.
+** Casinos
+
+BitCasino.  BitSaloon.  BitVegas.
+** The problem with market makers
+
+Market makers are, in principle, good for society.  They are people
+who are enabling new forms of co-operation.  Provided co-operation is
+for the good of the co-operating parties, that's very often a good thing for our society (and for the co-operators)
+
+The problem, though, is that many market makers make money on volume.
+And so they have an incentive to deceive the co-operating parties into
+believing that it's in their best interest to co-operate, even when
+it's not.  
+** Scalability
+
+Apparently designed to scale to much higher transaction rates than
+seen today.  Can support lightweight clients that don't process the
+entire block chain.
+
+VISA: 2,000 transactions per second. Burst capacity: 10,000 tps.
+
+Paypal: about 100 tps.
+
+Today: Bitcoin can only do 7 tps.  
+
+Nodes send "inv" messages to other nodes.  This is their way of saying
+"I have a new transaction".  If the receiver doesn't have that
+transaction, they request it (with getdata).
+
+Bitcoin can do around 4,000 tps on an average CPU.  So this should be
+fine.
+
+Network traffic: 8 megabits / second.
+
+
+
+** Is it ungovernable?
+** Mt Gox
+
+Notes based on Wikipedia.
+
+Operated out of Japan, in Shibuya.  Mark Karpeles is CEO.  Started in
+2009.  It started as an exchange for Magic: The Gathering playing
+cards.  Wikipedia says it has 10 employees.  They had a major security
+breach on June 19, 2011.  A hacker broke into an auditor's computer
+and stole bitcoins, then resold (!) them at a nominal price.
+
+March 2013: the blockchain forked.  Different rules on acceptance of
+transactions!  Mt Gox shut down deposits.  
+
+April 11, 2013: Market cooldown for about a day.
+
+July 2013: In a funny place.  Seems that Mt. Gox is only partially
+operating.
+
+May 15, 2013: The US authorities seized accounts associated with
+Mt. Gox.
+
+** Contracts
+
+https://en.bitcoin.it/wiki/Contracts
+http://szabo.best.vwh.net/formalize.html
+** Interesting addresses
+
+https://en.bitcoin.it/wiki/1DkyBEKt5S2GDtv7aQw6rQepAvnsRyHoYM
+** Addresses (based on bitcoin wiki)
+
+An address is a 160-bit hash of the public portion of a ECDSA keypair.
+
+A new keypair is generated for each receiving address.
+
+I see: people sometimes use "address" to mean the hash, and sometimes
+to mean the actual keypair.
+
+The wallet stores both the public and private keys.  Lose the private
+keys, and you lose the funds.
+
+
+
+
+
+An identifier containing 27-34 alphanumeric characters.  It begins
+with the number 1 or 3.
+
+A person can have many addresses.
+
+Often recommended that there be a separate address for every
+transaction.
+
+Doesn't require an internet connection, or to be part of the Bitcoin
+network.
+
+Can be done very quickly --- not computationally intensive.
+
+Each address has an associated private key.  If the private key is
+lost, any funds associated to that address are lost.
+
+I see: 
+
+Q: What's to stop someone from impersonating your address?  Is it that
+the address is a public key, and so without a private key, the address
+is useless?
+
+Q: Is the address simply a public key / private key pair, with you
+keeping the private key?  I.e., the address is a public key.
+
+
+** The blockchain is a centralized point that can be attacked
+
+This is problematic.  The blunt fact is, if someone can seize control
+of the block chain, then there's a big problem.  They might actually
+transfer a lot of money to themselves.
+
+** Bitcoin is a frontier
+
+Reading the forums, there is definitely something of a wild west feel to it.
+
+There are cowboys and cowgirls.
+
+** Security
+
+It is a giant experiment in applied crypto.
+
+** Transaction confirmation
+
+** Currency fluctuations
+
+Have been enormous, by conventional standards:
+
+https://blockchain.info/charts/market-price
+
+Why?  Will it ever settle down?
+
+
+SOCIAL ACCEPTANCE OF BITCOIN
+
+To become accepted, people must no longer care about how it works.
+
+HOW SECURE IS BITCOIN?
+
+A system is only as secure as its weakest link, and Bitcoin has been
+attacked in various ways.
+
+Computer security companies such as Symantec have
+\link{http://www.symantec.com/connect/blogs/all-your-bitcoins-are-ours}{reported}
+seeing trojan horse computer programs that, when installed on a
+computer, find the user's Bitcoin wallet, and mail it to an attacker,
+enabling them to steal the user's bitcoins.
+
+On at least one occasion, a user has had a large amount of money
+stolen in this way: XXX.
+
+Read: https://bitcointalk.org/index.php?topic=16457.0
+
+An interesting aspect of such theft is that it's possible to trace
+what the thief does with the money, by looking at subsequent
+transactions in the block chain.  To be safe, the thief needs to
+launder the money, arranging for it to be passed to someone unaware of
+the illegal origin, with the thief presumably benefiting in return,
+perhaps by receiving conventional currency or goods.  At that point it
+becomes difficult to do anything about the theft.  The bitcoins have
+been successfully laundered.
+
+
+
+Another way to attack Bitcoin is to gain control of other people's
+computers, using them to mine for bitcoins.
+
+For example, a rogue employee at the gaming network
+\link{http://play.esea.net/}{ESEA} modified one of ESEA's programs so
+that users would unknowingly mine Bitcoins.  More than \$3,700 worth
+of bitcoins were mined in this way.  It's not theft in the usual
+sense.  But it still cost users money, since their computers would
+consume more electricity to power the bitcoin mining.  (Source:
+\link{http://www.theverge.com/2013/5/2/4292672/esea-gaming-network-bitcoin-botnet}{Aaron
+Souppouris at The Verge})
+
+Organized criminals have also gotten into the action.  They've created
+botnets --- large networks of computers, belonging to ordinary,
+unsuspecting people.  But the computers have been compromised using a
+virus or some other form of attack, and can be used for malevolent
+purposes.  A botnet called
+\link{http://en.wikipedia.org/wiki/ZeroAccess_botnet}{ZeroAccess} is
+estimated to have infected several million computers.  Those computers
+are used to mine for bitcoins.
+
+
+Bitcoin advocates often like to brag that Bitcoin transactions are
+irreversible.  This is in distinction from credit card transactions,
+which can be reversed through what are called "Chargebacks".
+
+A Chargeback works like this: a buyer purchases an item using a credit
+card.  Later, they decide they're not happy with the purchase.  Maybe
+the goods were never delivered or they were broken.  Or perhaps they
+notice on their credit .  They phone their bank to say they'd like the
+charges reversed.  The bank then arranges 
+
+The problem with Chargebacks is that they are often abused: XXX.
+
+This has created something of a nightmare for 
+
+In Bitcoin, Chargebacks can't happen.  Then reason is: XXX.
+
+So, it seems like a good thing that transactions are almost
+irreversible?  We can't get into Chargeback hell.
+
+This is not entirely true.
+
+It's true 
+
+Yes, the Chargeback system is 
+
+
+NUMBER OF HASHES PER SECOND THAT ARE BEING COMPUTED
+
+http://blockchain.info/charts/hash-rate
+
+It's kind of incredible.  It's currently over 250 trillion per second.  It is likely to exceed 1 quadrillion later this year.
+
+People have moved from CPUs to GPUs to FPGAs to ASICs.
+
+SCALABILITY
+
+A potential problem is the number of tr.  At the moment it takes
+several hours for the full block chain to download.
+
+CRITICISMS
+
+WHAT HAPPENS IF THE LEDGER IS CORRUPTED?
+
+At the moment, 
+
+CAN'T ONE OF THE MINING POOLS GET CONTROL?
+
+Mining has become quite.  They are capital-intensive.
+
+To the extent that there are economies of scale, it may be that bigger
+is better.  So we'd expect a kind of winner-takes-all effect.
+
+
+LOCKING PROTOCOLS AND DISTRIBUTED COMPUTING
+
+Can we learn anything helpful from distributed computing and the
+theory of locks?  Can we have cryptographically secure locks?
+
+
+PROMOTION: MORGAN PECK, TYLER COWEN
+
+
+
+** How do Lamport clocks work?
+** How does BitTorrent work?
+** People to send this to
+
+Tyler Cowen.  Ed Felten and his collaborators.  Clay Shirky.  Tim
+O'Reilly.  Paul Krugman.  Scott Aaronson.  Tim Gowers.
+** Fundamental questions
+*** Can we use this to solve collective action problems / Kickstarter as a protocol
+
+One of the most fundamental class of problems in human affairs is the
+so-called collective action problems.  These are problems where
+everyone in a group wants.
+
+For instance, all airlines may agree that they want some change made
+to air regulations.  Yet none of them wants to spend money lobbying
+the government for it.  What they'd like is for some <em>other</em>
+airline to take the job 
+
+These collective action problems are absolutely <em>everywhere</em>.
+CO2 emissions &ndash; most countries in the world want <em>global</em>
+emissions to come down.  But that doesn't mean they themselves want to
+reduce their emissions.
+
+
+
+Kickstarter as a feature of your currency system
+
+Here's how we could solve a collective action problem.
+
+Create an address.  It's the address for solving some particular
+collective action problem -- e.g., buying a pool in some
+neighbourhood.
+
+Amounts could be sent to that address.  The transaction would only be
+accepted <em>provided</em> the total amount sent exceeds some total
+goal.  Otherwise, the money would be returned.
+
+In detail, the transaction would be held, pending the checking of some
+condition (e.g., a deadline had passed).  That condition would need to
+be accurately checkable by the majority of the network.
+
+A possible attack: the funder can pseudonomously donate a large
+fraction of the amount.  They can then return it to themselves later.
+
+Of course, this attack is already possible with Kickstarter.  And, to
+some extent, we see it happening.  E.g., in the Crackstarter a large
+donation came from Gawker media.
+
+Ideally, this would be time-limited.  That
+
+To make this work, we need a trusted network time.
+
+It'd need to be built into wallet programs, of course.  Here's how
+it'd look:
+
+XXX --- I agree to send XXX satoshis to XXX by XXX, provided they
+raise more than XXX.
+
+Some interesting possibilities: Automatic matching.  Make the donation
+scalable with the size of the total.  Match the donation from some
+other address.  The problem with all of these in the context of
+Bitcoin is that Bitcoin requires a fixed value.
+
+So you want to modify the protocol.  What you want is for the
+transaction to be accepted immediately.  What it does is puts a
+<em>hold</em> on the funds from that transaction.  Those
+
+What you want is a two-phase commit.  You want the 
+
+Are there any advantages over Kickstarter?  I guess it feels better.
+It's certainly far more flexible.  Power to design conditions is given
+explicitly over to.
+
+One apparent limitation is that the conditions must be approved by the
+network as a whole.  This makes it seem as though it
+
+For example, you can implement an idea futures market in this way.
+
+Could it be built into the web as a feature?
+
+*** Bitcoin as an enabler of deviant globalization
+
+Silk Road.
+
+At the moment a lot.
+
+However, this isn't really correct.
+
+Indeed, prov
+
+A fundamental question: who 
+*** Bitcoin at Wordpress
+
+Just 94 transactions.  Mullenweg called it "important to support philsophically":
+
+http://www.reddit.com/r/IAmA/comments/1jg781/i_am_matt_mullenweg_cofounder_of_wordpress_18_of/cbeev5a
+
+*** What's the right scripting language?  Finance as an operating system
+*** Other stuff
+
+Bitcoin is forkable.  The underlying ideas are far more powerful than
+the Bitcoin protocol itself.
+
+Alongside this, we do need to address some of the fundamental
+questions: is Bitcoin a true form of currency, or is it something else
+-- a Ponzi scheme, or elaborate swindle.
+
+
+
+The big questions:
+
++ Can we use this to create other financial instruments?
++
++ Can we use it to solve collective action problems? 
+
++ What's the right scripting language ? Finance as an operating system.
+
+Economics as a design science. 
+
+
+* Notes on papers
+** Bitcoin wiki ``How Bitcoin works''
+
+Each coin is associated with its current owner's public ECDSA key.
+
+To send some bitcoins: Create a message, attaching recipient's public
+key to the amount of coins, and sign it with your private key.  That
+lets everyone verify both who is sending, and who is receiving.
+
+"The complete history of transactions is kept by everyone, so anyone
+can verify who is the current owner of any particular group of coins."
+
+THe complete record of transactions is kept in the _block chain_.  You
+can actually not just find out the current state of things, but
+everything at every point in history.
+
+Every block contains a hash of the previous block.  This effectively
+means that there is a time-ordering.  So there is a chain of blocks
+from the initial block, which is called the genesis block.  "The block chain is the main innovation of Bitcoin".
+
+Every computer in the network has a copy of the block chain, which
+they keep updating by passing along new blocks to each other.  I must
+admit, I don't see how we can possibly keep things in sync.  It would
+seem to fall afoul of CAP or something similar.
+
+"Record insertion is costly because each block must meet certain
+requirements that make it difficult to generate a valid block.  This
+way, no party can overwrite previous records just by forking the
+chain."
+
+OKay, at this point the wiki starts to get kind of vague.  I think I'm
+going to go to the original source --- Nakomoto's paper.
+
+
+
+** Drainville (2012) ``An analysis of the Bitcoin electronic cash system}
+
+\link{link}{https://math.uwaterloo.ca/combinatorics-and-optimization/sites/ca.combinatorics-and-optimization/files/uploads/files/Drainville,\%20Danielle.pdf}
+
+I don't understand what it means for a government to "back" a
+currency.
+
+Credit cards: the merchant knows who the user is; the bank knows where
+a user has spent their money.
+
+Electronic cash: payer, payee, and bank.
+
+WIthdrawal protocol:
+
+1. Alice prepares a message: (This is \$100, \#12345), where \#12345 is the coin's serial number.
+
+2. Alice obtains the Bank's public key (n, e) for generating \$100
+coins.
+
+3. Alice selects a random string in Z_n^*
+
+4. Alice computes m' = H(M) r^e (mod n), where H is a known hash
+   function.
+
+5. Alice asks the bank for a \$100 withdrawal, and sends m'.
+
+6. The Bank debits Alice's account by \$100, and sends Alice s' =
+   (m'^d) mod n, where d is the Bank's private key for \$100 coins.
+
+Anyone (including Alice) can raise s' to the e'th power, obtaining m', which verifies to Alice that the Bank has indeed sent it.
+
+7. Alice computes s = s'r^{-1} = H(M)^d mod n.  The coin is (M, s).
+
+I don't understand why r was ever included.
+
+Payment and deposit protocol
+
+1. Alice hands the coin (M, s) to Bob.
+
+2. Bob submits the coin to the bank.
+
+3. The Bank verifies the signature on the coin using its \$100 coin
+   public key.  In fact, anyone can verify the coin.
+
+4. The Bank verifies that the coin has not been previously spent,
+   using the serial number.  I presume that is r(??)
+
+5. The Bank enters the coin's serial number in a spent coin database.
+
+6. The Bank credits Bob's account by \$100, and informs him the payment
+   is valid.
+
+7. Bob finalizes the transaction with Alice.
+
+Main takeaway: a coin is a pair of numbers, (M, s).  There's much that
+I don't understand about the protocol.  Why is r included?
+
+Let's look at the payment.  I understand steps 1 and 2.  Step 3: The
+bank takes s = H(M)^d, and raises it to the e'th power to obtain H(M).
+I'm not really sure what that proves.  It's a kind of consistency
+check?  4. The Bank can now check the serial number.  No, Alice hasn't
+previously spent it.  5.  The Bank enter's the coin's serial number in
+a spent coin database.  These are use-once coins.  6 and 7: I
+understand.
+
+So I at least understand the steps in the payment protocol, even if I
+don't understand why.
+
+It states that the coins are signed by the bank.  I guess it's signed
+in the sense that anyone can take the bank's public key, raise s to
+the e'th power, and get back H(M).  That tells us that the bank truly
+did issue the coin.
+
+Coin: (M, s) with the property that s^e = H(M), where e is the bank's
+public key, and H is a hash function.  This property tells us that the
+bank did, indeed, issue the coin.  s is the bank's signature.
+
+Security against double-spending: The bank always keeps track.
+
+Untraceable: There's a neat trick here.  What Alice sends the Bank
+contains no information about H.  It's blinded by r.  I see.  r is a
+blinding factor.  It ensures that the bank learns nothing about M or
+s!
+
+I see.  You could modify the protocol by removing r.  That would make it all a lot simpler.
+
+Alice walks into a bank.  She says: "I'd like a \$100 coin please".
+The bank debits her account and hands her a hash of "This is a \$100
+coin, serial #X".
+
+Basically, it's a bearer chit.
+
+I don't yet see how to generate serial numbers.  I guess the number
+needs to be new. 
+
+ALright, I won't worry about getting too into this.  I'll move on to
+Bitcoin.
+
+Bitcoin.  Download a wallet.  Download the block chain.  (How is it
+verified?  How is the wallet verified?)  User can generate lots of
+Bitcoin addresses.
+
+Take the previous transaction.  I'm not exactly sure what that is.
+Add the public key of the person you want to send money to.  Then hash
+both.  Sign the hash.  Transfer the hash and your signature to the new
+owner.  That's their new coin.
+
+"All transactions are simply numbers".  
+
+Take the previous transation (just some set of bits), T.  Then hash it
+together with my public key, H(T, p).  Then sign it with my private
+key, getting H(T, p), s.  Now add this to the end of the coin.  That's
+the full transaction.
+
+I'm guessing that the reason for the hash is just to keep things
+small.
+
+Now broadcast the transation to the rest of the world.
+
+Try again:
+
+A transaction is simply a number.
+
+Bitcoin relies on a proof-of-work system to verify and authenticate
+transactions.
+
+What is proof of work?  
+
+Where is the block chain held?
+
+How do we keep the block chain synchronized?
+
+The number of bitcoins will increase in a pre-determined way until 21
+million is reached.
+
+What is the Bitcoin network?  How do we know someone belongs?
+
+Decisions are made through a majority vote.  Presumably, this means
+that it is up to the majority to decide whether or not a transaction
+should be added to the block chain.
+
+How does the user know they've gotten the full block chain?  They
+won't --- it'll be out of date.  It apparently takes a few hours to
+download the block chain.
+
+``A bitcoin can be thought of as a chain of digital signatures''.  I
+don't really understand that.  Suppose we want to sign a document,
+$d$.  We have private key $s$ and public key $p$ (we'll also use those
+to denote encoding).  Then we compute $s(d,p)$.  That is, we take the
+document, append our public key, and encrypt using our private key.
+Anyone else can decrypt with our public key, and will obtain $(d, p)$,
+verifying that we
+
+So the naive way of thinking about a bitcoin is that it's a chain of
+signatures, $s_1(d_1, p_1), s_2(d_2, p_2), \ldots$.  But it may not
+quite be that.
+
+What happens when Alice gives Bob a Bitcoin?  It seems that Alice
+generates a number and broadcasts it to the network.  That number says
+``I, Alice, want to give Bob a Bitcoin''.  It's a transaction.  If
+enough people accept it as valid, then Bob will have effective
+ownership over the Bitcoin.
+
+Alice transferring a Bitcoin to Bob.  Let's suppose $T$ represents the
+previous transaction in which the Bitcoin was used.  Alice has public
+key $p_A$ and private key $s_A$.  Bob has public key $p_B$ and private
+key $s_B$.  $h$ is a known hash function. Compute $s_A(h(T, p_B),
+p_A)$ and append this to the chain of digital signatures.  
+
+I don't understand the relationship between the chain of digital
+signatures, and the transaction.  Is $s_A(h(T, p_B), p_A)$ the
+transaction?  We can verify the join claim that: this came from Alice,
+was intended for Bob, and the previous transaction in this Bitcoin's
+life was T.
+
+I think that's the transaction.
+
+It seems that we can track coins, at least through their public keys.
+
+We have a proof-of-work block.  What's a nonce?  According to
+Wikipedia, it's an arbitrary number used only once in a crypto
+communication.  ``If is often a random or pseudorandom number issued
+in an authentication protocol to ensure that old communications cannot
+be used in reply attacks.''  POint number 1: it's a number.  That
+helps to know!
+
+A proof-of-work block contains: the transactions that need to be
+verified; the hash of the previous bock; and a nonce.  I see.  It
+appears to be the nonce that we find.
+
+Roughly: there is the previously authenticated block.  There are a
+bunch of transactions.  And what we do is find a nonce so that the
+hash of all these things is less than some predetermined number.
+
+A user simply adds this to the block chain.
+
+``Since multiple users are attempting to generate blocks and obtain
+the reward, there is a possibility that two blocks are created around
+the same thime thus creating a fork in the chain.''  It seems that the
+winner is whichever was tougher to generate.
+
+``Blocks can contain hundreds of transactions.''
+
+
+** The Economist (2011) "Bits and Bob"
+
+
+\link{http://www.economist.com/blogs/babbage/2011/06/virtual-currency}
+
+"Milton Friedman famously called for the abolition of the Federal
+Reserve, which he thought ought to be replaced by an automated system
+which would increase the money supply at a steady, predetermined
+rate."
+
+On Bitcoin: Devised by Satoshi Nakomoto.  No central clearinghouse.
+Truly decentralized.  Not pegged to any traditional currency --- it
+floats.  "Bitcoin is underwritten by a peer-to-peer network akin to
+file-sharing services like BitTorrent."
+
+"[U]sers can install a personal digital wallet on their own
+computers."  But if the laptop dies, so does the currency.  Apparently
+backups okay.  (Wonder how that works?)  I wonder how it is that
+people are apparently able to steal?
+
+If I want to pay you, I use your public key.  You can decrypt using
+your private key.  I use my private key to approve the transaction.
+
+The obvious way to prevent double spending is a central authority.
+Can we do it some other way?  There is simply a list of all
+transactions approved to date.  Two types of transaction: currency
+created; currency is transferred.
+
+Transactions broadcast to the entire network.
+
+How do we deal with time?
+
+"[A]s the network expands from dozens of users to thousands, and
+transaction volume grows, so does the number of logs vying for the
+official crown.  Getting everybody to scrutinise the first proposal
+aired across the network for inconsistencies soon becomes impractical;
+the whole system grinds to a halt.  Some way is therefore needed to
+ensure that the official register can be updated and agreed on in real
+time (or nearly), while preventing individuals from tampering with
+it... Nakomoto's ingenious solution involves two related cryptographic
+techniques: hashing and forced work."
+
+"With Bitcoin, all new transactions are automatically broadcast across
+the entire network and analysed in portions, called blocks.  Besides
+any new as-yet-unconfirmed transations, each block contains the digest
+for the last block to have got the nod from the network.  That last
+block will always come from the tip of the longest chain of blocks
+currently on the network.  This chain is, in effect, the official
+log-confirmation that all the previous blocks tot up."
+
+I'm having trouble understanding this.  I don't think he's actually
+written a complete description.  I think I'm going to switch to
+another description.
+
+Points to take away: There's an official register or log.  It's held
+communally.  Hashing and forced work are used to analyse the log.
+
+
+** Nakamoto (2011) ``Bitcoin: a peer-to-peer electronic cash system}
+
+\link{http://bitcoin.org/bitcoin.pdf}{link}
+
+"WHat is needed is an electronic payment system based on cryptographic
+proof instead of trust, allowing any two willing parties to transact
+directly with each other without the need for a trusted third party."
+
+"The system is secure as long as honest nodes collectively control
+more CPU power than any cooperating group of attacker nodes."
+
+"We define an electronic coin as a chain of digital signatures."  I'm
+not sure yet what a chain is, or a digital signature, in this context.
+"Each owner transfers the coin to the next by digitally signing a hash
+of the previous transaction [presumably, the last time the coin was
+transferred] and the public key of the next owner and adding these to
+the end of the coin. 
+
+An electronic coin is a chain of digital signatures.  I should just
+take him or her at their word --- it's just a list of digital
+signatures.  I see.  This is much clearer now.
+
+Previous transaction, $T$.  Compute $s_0(h(T, p_1), p_0)$.  Everyone
+can verify that this was from owner 0.  I see: the previous
+transaction is available.  A transaction appears to be just a
+digitally signed document.  A coin consists of the entire transaction
+chain.
+
+I have a provisional understanding, which I could write out.
+
+A coin consists of a series of numbers, $T_1, T_2, T_3,\ldots$.  These
+numbers represent transactions, in which the coin is transferred
+between owners (more strictly, between keys).  Suppose we want to do a
+new transaction.  Then we compute $s_j(h(T_{j-1}, p_{j+1}), p_j)$.
+This is the new transaction.  The new owner can verify that it came
+from the old owner.  Everyone else can verify
+
+It's a bit like a ledger in which we continually sign over ownership.
+
+The problem is double spending.  If I had a coin, I could transfer it
+to several other owners, potentially.
+
+One solution: have a trusted third party verify transactions.
+
+Instead: make the entire network the third party.
+
+``[T]ransactions must be publicly announced, and we need a system for
+participants to agree on a single history of the order in which they
+were received.  The payee needs proof that at the time of each
+transaction, the majority of nodes agreed it was the first received.''
+
+``For our timestamp network, we implement the proof-of-work by
+incrementing a nonce in the block until a value is found that give's
+the block's hash the required zero bits.''
+
+The network: New transactions are broadcast to all nodes.  Each node
+collects new transactions into a block.  Presumably, this means each
+node may be working on different blocks.  Who decides how large the
+block should be?  Each node works on finding a difficult
+proof-of-work for its block.  Basically, it's trying to find a nonce
+that, when the block is hashed, gives rise to a certain number of
+zeroes.  If it finds 
+
+There is one coinbase transaction per block.  The first transaction in
+a block is usually the transaction that grants the coins to the miner.
+
+A bitcoin address is the hash of a public key.
+
+How is the network created and maintained?
+
+Typically, get 6 confirmations before a purchase will go through.
+
+Wallet-stealing viruses: http://bitcoin.stackexchange.com/questions/216/do-wallet-stealing-viruses-exist
+
+Making the proof-of-work system useful: http://bitcoin.stackexchange.com/questions/331/is-there-a-way-to-set-up-proof-of-work-systems-so-it-would-be-even-more-useful
+
+Alright, let me look at a slightly different explanation.
+
+Alice wants to transfer a bitcoin to Bob: (1) Bob sends his public key
+to Alice.  (2) Alice adds Bob's address and the amount of bitcoins to
+transfer to a message.  This is the transaction.  (3) Alice digitally
+signs the transaction, and announces her public key.  (4) Alice
+broadcasts the transaction to the entire network.
+
+Preventing double spending: (1) Broadcast the transaction to as many
+people as possible; (2) The block chain is kept and collectively
+maintained by all computers; (3) Blocks are chained so that if any one
+is modified, all the later blocks will need to be recomputed; (4) When
+multiple valid continuations to the chain appear, only the longest
+branch is accepted.
+
+I don't understand point (3).
+
+I don't understand point (4).  The basic point seems to be that if two
+people announce separate proof of work, then one of them will win.
+
+The idea seems to be that Bob waits to see that his transaction has
+been included in a block which is part of the block chain.  When
+that's the case, it would be very hard for Alice to change the block
+chain.
+
+I obviously need to understand better what's in a transaction.  The
+format for a 1 input, 1 output transaction:
+
+Previous tx: hash of the previous transaction.  This is just a label.
+
+Index: Transactions are broken up into multiple parts.  This says
+which part of the previous transaction.
+
+Script: There are two components.  There is a signature, and a public
+key.  The public key is of the recipient(?) Maybe not --- it might be
+of the sender. The signature is of a simplified version of the
+transaction.
+
+Value: Number of Satoshi in question.
+
+You need to send yourself change.  ``Any input bitcoins not redeed in
+an output is considered a transaction fee; whoever generates the block
+will get it.''
+
+Bitcoin currently creates two different scriptSig/scriptPubKey pairs.
+
+* Queue
+
+Nick Szabo's blog and essays
+
+http://www.erights.org/
+
+Felten's article
+
+TOR.
+
+The Bitcoin Stackexchange
+
+HOw Bitcoin works (great technical explanation, good gold standard): https://news.ycombinator.com/item?id=6426826
+
+Inventing a currency: http://www.aeonmagazine.com/living-together/so-you-want-to-invent-your-own-currency/
+
+Bitcoin explained (nice graphical explanation): http://vimeo.com/63502573
+
+Hacking incidents:
+https://krebsonsecurity.com/2013/07/botcoin-bitcoin-mining-by-botnet/
+http://www.bbc.co.uk/news/technology-21964881
+
+IEEE SPectrum on Bitcoin: http://spectrum.ieee.org/tag/Bitcoin/?media=all\&max=10\&offset=0\&sortby=desc
+
+Interesting facts about Bitcoin: http://rusty.ozlabs.org/?p=344
+
+Do wallet-stealing viruses exist? http://bitcoin.stackexchange.com/questions/216/do-wallet-stealing-viruses-exist
+
+Cypherpunks.
+
+David Chaum's original proposal for electronic money.
+
+Nakamoto.
+
+The Economist's article.
+
+The Federal Reserve Bank on Second Life:
+http://www.richmondfed.org/publications/research/region\_focus/2008/winter/pdf/feature1.pdf
+
+Nicolas Christin's analysis of how Bitcoin has enabled Silk Road, an
+illicit online marketplace.
+
+Nils Gilman on Deviant Globalization:
+http://www.ndu.edu/press/lib/pdf/books/convergence/convergence\_Ch1.pdf
+
+Shamir and Gilman
+
+* Todo 
+** <2013-08-01 Thu>
+*** DONE Fix the relative sizes of the h2 and h3 stuff
+CLOSED: [2013-08-02 Fri 10:59]
+*** DONE Do I want to define a subsection?
+CLOSED: [2013-08-02 Fri 10:59]
+*** DONE Sketch out the Reward for work section
+CLOSED: [2013-08-02 Fri 11:00]
+*** Ideas
+
+One-sentence bio in the heading?
+
+Possibly shorten the width?
+
+Sample the colour in the header to decide the later colour.
+
+Figure out how to darken the font.
+
+Link colour = headline colour
+
+HTML em and en dashes
+
+Take care of offset header
+
+Standard width?  860px...
+
+Get title all in....
+** <2013-08-02 Fri>
+*** DONE Find out standard assumption for width
+CLOSED: [2013-08-02 Fri 11:18]
+
+At the moment it looks as though 960px will be a nice conservative assumption.  Given my relatively modest needs, I think it should be fine.
+*** DONE Take care of offset header --- there is padding
+CLOSED: [2013-08-02 Fri 11:17]
+
+*** DONE Sample the colour in the header, and use it
+CLOSED: [2013-08-02 Fri 11:27]
+*** DONE Figure out how to darken the font
+CLOSED: [2013-08-02 Fri 11:30]
+*** DONE Make it so words don't disappear when I contract the right-hand side
+CLOSED: [2013-08-02 Fri 12:50]
+*** DONE Make it so the link colour is the headling colour
+CLOSED: [2013-08-02 Fri 12:56]
+*** DONE Fix the h2 and h3 colours
+CLOSED: [2013-08-02 Fri 12:56]
+*** DONE Figure out how to write dashes
+CLOSED: [2013-08-02 Fri 13:03]
+
+Looks like I should switch to en dashes.  That's &ndash;
+*** DONE Are the links too dark?  How to fix?
+CLOSED: [2013-08-02 Fri 13:37]
+*** DONE Sketch a background for the header in neural nets book
+CLOSED: [2013-08-02 Fri 13:37]
+*** DONE Figure out how to do an image for NNADL
+CLOSED: [2013-08-02 Fri 16:32]
+*** DONE Modify things so we move to 960px width
+CLOSED: [2013-08-02 Fri 16:49]
+*** DONE Narrow the main column, if necessary
+CLOSED: [2013-08-02 Fri 17:01]
+
+** <2013-08-03 Sat>
+*** Thinking
+
+Alright, I'm having a little trouble here.  The problem is that I have two separate projects here.  One is the Bitcoin essay.  The other is NNADL.  Which do I want to be working on?
+
+I think I want a common stylesheet for the two.  But at this point I'd
+be better off working on NNADL for a while --- trying to get the tex
+compiler to work just right.
+
+*** DONE Create a style sheet for NNADL
+CLOSED: [2013-08-03 Sat 18:44]
+*** DONE Rename tex_bostrap to htmlify
+CLOSED: [2013-08-03 Sat 18:44]
+*** DONE Remove bootstrap from htmlify
+CLOSED: [2013-08-03 Sat 18:58]
+*** DONE Add the style sheet to htmlify
+CLOSED: [2013-08-03 Sat 18:58]
+*** DONE Add five chapters to the table of contents
+CLOSED: [2013-08-03 Sat 19:24]
+*** DONE Move my name / Sep 2013
+CLOSED: [2013-08-03 Sat 19:24]
+*** DONE Crop my picture
+CLOSED: [2013-08-03 Sat 19:53]
+*** DONE Change the header so that Deep Learning is moved to the second line
+CLOSED: [2013-08-03 Sat 19:53]
+
+I can do this very easily: there is no need to have so much absolute positioning in the header any more
+*** DONE Remove my name from the header
+CLOSED: [2013-08-03 Sat 19:53]
+** <2013-08-04 Sun>
+*** DONE Fix the section and subsection colours
+CLOSED: [2013-08-04 Sun 10:07]
+*** DONE Try Paint.net, Inkscape, MS Paint solutions for resizing
+CLOSED: [2013-08-04 Sun 10:19]
+*** DONE Refactor the header
+CLOSED: [2013-08-04 Sun 10:19]
+*** DONE Change the display colour for links
+CLOSED: [2013-08-04 Sun 10:19]
+*** DONE Change it so the horizontal rule doesn't go the whole way across
+CLOSED: [2013-08-04 Sun 10:26]
+*** DONE Find the HSV values for the background colour
+CLOSED: [2013-08-04 Sun 11:05]
+*** DONE Add the title to the margin
+CLOSED: [2013-08-04 Sun 11:45]
+*** DONE Figure out how to deal with the font size in the right margin
+CLOSED: [2013-08-04 Sun 11:45]
+
+*** DONE Make it so footnotes appear in the margin.
+CLOSED: [2013-08-04 Sun 20:25]
+
+*** DONE Add a footer
+CLOSED: [2013-08-04 Sun 20:25]
+** <2013-08-05 Mon>
+*** Brainstorm how to handle frontmatter, mainmatter, backmatter, and 
+
+What I need is to build up the TOC after the fact.
+
+As we go through, I should build up a data structure that will let me build up the TOC after the fact.
+
+Stuff can have three statuses: included, greyed out, and skipped.
+
+Also, we have three types: frontchapter, mainchapter, backchapter.  So I should do an appropriate design.
+
+\frontchapter{}{}, \mainchapter{}{}, \backchapter{}{}.  
+
+
+Options: include, grey, skip.
+
+
+I think the processing into chapters should probably be done upfront.
+Yes, that will greatly simplify things.  It will give us global
+access:
+
++ Split into a list of front chapters, a list of mainchapters, and a
+  list of backchapters.
++ For now, ignore the include, grey, skip options --- I'll act as
+  though they're all include.
++ FOr each chapter: extract the title at the start.  Then construct an
+  appropriate header.
++ For each chapter: extract all sections, replace by html
++ For each chapter: extract all subsections, replace by html
++ For each frontchapter: put in a link.
++ For each mainchapter: put in a link.  If sections, then put in a
+  list of sections.
++ For each backchapter: put in a link.
++ Return a list of posts, and toc_html
++ Posts don't need to process chapter headings, or sections, or subsections any more
+*** DONE Fix indentation
+CLOSED: [2013-08-05 Mon 21:55]
+*** DONE Add the image on the RHS
+CLOSED: [2013-08-05 Mon 21:55]
+*** DONE Add a boot camp link
+CLOSED: [2013-08-06 Tue 08:36]
+** <2013-08-06 Tue>
+*** DONE Do an experiment to see how well the equations can be coped with in the margin
+CLOSED: [2013-08-06 Tue 10:02]
+*** DONE Fix up the display of marginal equations
+CLOSED: [2013-08-06 Tue 10:50]
+*** DONE Make it so the "Exercises" and "Problems" are correctly pluralized
+CLOSED: [2013-08-06 Tue 13:29]
+*** DONE Change the size of the "Exercises" and "Problems"
+CLOSED: [2013-08-06 Tue 13:29]
+*** DONE Fix the opening image
+CLOSED: [2013-08-06 Tue 13:29]
+*** DONE Convert htmlify to htex
+CLOSED: [2013-08-06 Tue 13:31]
+*** DONE Revise the opening
+CLOSED: [2013-08-06 Tue 16:37]
+*** DONE Figure out the pattern I want in htex
+CLOSED: [2013-08-06 Tue 20:39]
+
+The pattern is something like the following:
+
+def process(source, name, num_args, f):
+  """Searches source for all occurences of \name, extracts num_args
+  arguments, and sends them to f, which returns a string which is
+  to be substituted for \name occurrences."""
+**
+*** DONE General refactoring
+CLOSED: [2013-08-06 Tue 21:23]
+*** DONE Move the HEADER AND END to a separate py file, which can be imported
+CLOSED: [2013-08-06 Tue 21:23]
+
+filename_htex.py
+
+Also add the TOC stuff
+*** DONE Fix the broken exercises
+CLOSED: [2013-08-06 Tue 21:45]
+ALright, the fundamental issue here turns out to be that urls
+sometimes have % signs in them.  But we delete all of those.
+
+Options: Convert urls with \% in them to something weird.  Then
+unmangle them.  That's pretty tempting.
+*** DONE Fix up \\ in exercises
+CLOSED: [2013-08-06 Tue 22:09]
+*** DONE Add Pygments
+CLOSED: [2013-08-07 Wed 11:31]
+
+** <2013-08-07 Wed>
+*** DONE Upload to DH
+CLOSED: [2013-08-07 Wed 14:37]
+*** DONE Fix the footer --- doesn't display right when browser only at 960px
+CLOSED: [2013-08-07 Wed 16:15]
+
+How to solve this problem?
+
+One way would be to reduce the size.
+** <2013-08-08 Thu>
+*** DONE Make sure code blocks are being dealt with okay
+CLOSED: [2013-08-08 Thu 21:56]
+** <2013-08-09 Fri>
+*** TODO Marginal equations don't have the right colour
+*** TODO Marginal mathematics is too dark
+*** TODO Make it so we can do \html_insert s.  
+*** TODO Add a whole bunch of line breaks to the stuff about exercises --- let's say 10
+*** TODO Add mailing list, GitHub repo
+*** Q: How do I want to indicate that it's an alpha release?
+
+I could put it in the header somewhere.  Maybe on the far right.
+
+I could put it in the footer.  Put a version number, maybe.  v 0.01.
+*** TODO Rev
+*** TODO Fix the justification of code blocks
+*** TODO Make it so code snippets are dealt with appropriately
+*** TODO Fix the mathematical font
+*** TODO Extract all the the sections, and append them to the description of the chapters
+*** TODO Add a proper reset -- try looking at a bunch of themese
+*** TODO Is "The architecture of neural networks" too broad?
+*** TODO Add ToC top
+*** TODO Add ToC bottom
+*** TODO Do I really want section and subsection headings to be underlined?
+*** TODO Do I really want section headings to be coloured with link colour?
+*** TODO Get the chapter references right in "About".
+*** TODO The footer is overrun in short documents
+*** TODO Are the \nextline's being dealt with accurately?  Glancing at the htex source suggests not
+
+*** TODO Fix up all
+*** TODO Add a thankyou for MathJax, TeX, LaTeX, Pygments in the footer
+*** TODO Add code repo & mailing list to the sidebar
+*** TODO Fix up the 
+*** TODO Rewrite the doc string at the start of htex
+
+*** TODO Do I want to call them "digits" or "numerals"?
+*** TODO Make it so citations appear in the margin
+*** TODO Take 10 minutes to refactor one thing in htmlify
+*** TODO Add Google Analytics
+*** TODO Add a boot camp page
+*** TODO Add something to indicate that this is an alpha release
+*** TODO Make it so stuff that shouldn't be processed and turned into a file isn't
+*** TODO 
+*** TODO Add doc to htmlify about how it should not be thought of as a converter.  Rather, it's a way of taking a hybrid and producing two pieces of output
+
+*** TODO Talk footer style over with Jen
+
+*** TODO Fix it so that chapter numbers and titles go into the header
+*** TODO Edit out the boundary box around the digitized handwriting, downsize it.
+
+Looks like 180px is about right.  Should say "scanned and digitized".
+
+*** TODO Fix the placement of the h2 headers: flush the left, to the edge of the right
+*** TODO Figure out the right saturation level and size for my photo
+*** TODO Figure out the right citation style
+
+Michael A. Nielsen, "Neural Networks and Deep Learning", XXX Press
+(2014), available at http://neuralnetworksanddeeplearning.org.
+
+*** TODO Make it so we have a local, versioned copy of mathjax
+*** TODO Add jquery to htmlify
+*** TODO NNADL: Create a table of contents for NNADL
+*** TODO Look over the bootstrap standard, to find stuff that may be worth using
+*** TODO NNADL: Create an appropriate list demarcation
+
+*** TODO NNADL: Add an image of me to the margin
+
+*** TODO NNADL: Fix up the header
+*** TODO Bitcoin: Add proper link for mathjax
+*** TODO NNADL: Add jquery to repo
+*** TODO Bitcoin: Add jquery version to repo
+*** TODO NNADL: Make it so footnotes are added to the margin
+
+
+*** TODO Finish sketching out the reward for work section
+*** TODO Make it so we have right delimiters for mathematics
