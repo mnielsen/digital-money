@@ -509,6 +509,8 @@ PROMOTION: MORGAN PECK, TYLER COWEN
 ** How does BitTorrent work?
 ** People to send this to
 
+???
+
 Tyler Cowen.  Ed Felten and his collaborators.  Clay Shirky.  Tim
 O'Reilly.  Paul Krugman.  Scott Aaronson.  Tim Gowers.
 ** Fundamental questions
@@ -1043,6 +1045,46 @@ an output is considered a transaction fee; whoever generates the block
 will get it.''
 
 Bitcoin currently creates two different scriptSig/scriptPubKey pairs.
+** Szabo, "The Idea of Smart Contracts" (1997)
+
+http://szabo.best.vwh.net/idea.html
+
+"What is the meaning and purpose of 'security'?  How does it relate to the relationships we have?  I argue that the formalizations of our relationships -- especially contracts -- provide the blueprint for ideal security."
+
+There is an interesting idea here.  The stronger contract law, the
+more "security" we have.  But, of course, contract law can fail in two
+ways: (1) sometimes flexibility is a feature, not a bug; and (2) in
+unjust societies, contract law can become a burden, not an advantage.
+
+"Many kinds of contractual clauses... can be embedded in the hardware
+and software we deal with, in such a way as to make breach of contract
+expensive (if desired, sometimes prohibitively so) for the breacher."
+
+He gives the vending machine as an example.
+
+The idea is to embed contracts in property that is valuable and
+controlled by digital means.
+
+Obvious connections to "Code is Law".
+
+Smart lien protocol: if people fail to make payments on their car, the
+smart contract returns control of the car keys to the bank.  Szabo
+gives further refinements for things like a hardship exception,
+operational exceptions, and so on.
+
+It's interesting how much of this looks (from the 2013 perspective!)
+just like security.  I guess I've become encultured with the idea of
+smart contracts, without really noticing.
+
+No formal definition of smart contracts.  Really, it's just the
+observation that as we digitally control more and more things, we'll
+start to embed all kinds of legal entities in them.  Today, this is
+taken for granted.  In 1997, it was a major leap.  And, of course, we
+_don't_ yet understand all the implications (nor even 1% of the
+implications).  Nor is it clear that we want a society where this is
+legally possible.  But it sure is interesting to think about!
+
+
 
 * Queue
 
