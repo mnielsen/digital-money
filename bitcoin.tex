@@ -1,116 +1,309 @@
-\chapter{How Bitcoin actually works}
+\documentclass[12pt]{book}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[dvips]{graphicx}
+\usepackage{fancyvrb}
+\usepackage{hyperref}
+\usepackage{ifthen}
+\usepackage{latexsym}
+\usepackage{makeidx}
+\usepackage{verbatim}
+
+\newcommand{\complex}{\Bbb C}
+\newcommand{\curl}{\nabla \times}
+\renewcommand{\div}{\nabla \cdot}
+\newcommand{\Dal}{\Box}
+\newcommand{\nextline}{\\}
+\newcommand{\breakline}{\\}
+\newcommand{\grad}{\nabla}
+\newcommand{\reals}{\Bbb R}
+\newcommand{\tr}{\mbox{tr}}
+\newcommand{\qed}{$\Box$}
+
 
 %
-% lede
+% htex commands for images, links, and code
 %
-Thousand of articles have been written about Bitcoin.  Many focus on
-the Bitcoin soap opera -- "Is it a bubble?", "Who's getting rich?",
-and so on.  Many purport to explain Bitcoin, but nearly all skip over
-key details.  Even the more technical articles explain simplified
-versions of Bitcoin, often missing crucial elements in how Bitcoin
-works.
+\newcommand{\img}[2]{\begin{center}\includegraphics[width=#2]{#1.eps}\end{center}}
+\newcommand{\link}[2]{\href{#1}{#2}}
+\newcommand{\insertcode}[1]{{\footnotesize \verbatiminput{#1}}}
+\newcommand{\html}[1]{}
+\newcommand{\latexorhtml}[2]{#1}
+
+%
+% Special chapter commands, so htex can construct headers and table
+% of contents
+%
+\newcommand{\frontchapter}[3]{\chapter*{#1}}
+\newcommand{\mainchapter}[3]{\chapter{#1}}
+\newcommand{\backchapter}[3]{\chapter*{#1}}
+
+
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{conjecture}{Conjecture}
+
+
+\DefineVerbatimEnvironment{bash}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{pseudocode}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{python}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{text}{Verbatim}{fontsize=\small}
+
+\newcounter{exercise}[chapter]
+\renewcommand\theexercise{\thechapter.\arabic{exercise}}
+
+\newenvironment{singlespace}{\renewcommand{\baselinestretch}{1}}
+
+\newenvironment{exercise}{
+            \vspace{0.7cm}
+            \begin{singlespace} \vspace{-0.8cm}
+            \def\@currentlabel{\p@exercise\theexercise}
+            \begin{list}{}{%
+                \renewcommand{\makelabel}[1]{%
+                    {\sl\bf Exercise
+                        \refstepcounter{exercise}\theexercise:~\hfill}%
+                    \ifthenelse{\equal{##1}{}}{}{
+                        ({\bf ##1})
+                    }%
+                }%
+                \setlength{\leftmargin}{1cm}
+            }%
+        }%
+        {\end{list}\end{singlespace}\vspace{0.1cm}}
+
+\newenvironment{exercises}{
+            \vspace{0.7cm}
+            \begin{singlespace} \vspace{-0.8cm}
+            \def\@currentlabel{\p@exercise\theexercise}
+            \begin{list}{}{%
+                \renewcommand{\makelabel}[1]{%
+                    {\sl\bf Exercise
+                        \refstepcounter{exercise}\theexercise:~\hfill}%
+                    \ifthenelse{\equal{##1}{}}{}{
+                        ({\bf ##1})
+                    }%
+                }%
+                \setlength{\leftmargin}{1cm}
+            }%
+        }%
+        {\end{list}\end{singlespace}\vspace{0.1cm}}
+
+
+\newcommand{\problemheader}{\vspace{5mm} \noindent \textbf{\Large \!\!
+    Problems}}
+
+\newcounter{problem}[chapter]
+\renewcommand\theproblem{\thechapter.\arabic{problem}}
+
+\newenvironment{problem}{
+            \vspace{0.7cm}
+            \begin{singlespace} \vspace{-0.8cm}
+            \def\@currentlabel{\p@problem\theproblem}
+            \begin{list}{}{%
+                \renewcommand{\makelabel}[1]{%
+                    {\sl\bf Problem
+                        \refstepcounter{problem}\theproblem:~\hfill}%
+                    \ifthenelse{\equal{##1}{}}{}{
+                        ({\bf ##1})
+                    }%
+                }%
+                \setlength{\leftmargin}{1cm}
+            }%
+        }%
+        {\end{list}\end{singlespace}\vspace{0.1cm}}
+
+\newenvironment{problems}{
+            \vspace{0.7cm}
+            \begin{singlespace} \vspace{-0.8cm}
+            \def\@currentlabel{\p@problem\theproblem}
+            \begin{list}{}{%
+                \renewcommand{\makelabel}[1]{%
+                    {\sl\bf Problem
+                        \refstepcounter{problem}\theproblem:~\hfill}%
+                    \ifthenelse{\equal{##1}{}}{}{
+                        ({\bf ##1})
+                    }%
+                }%
+                \setlength{\leftmargin}{1cm}
+            }%
+        }%
+        {\end{list}\end{singlespace}\vspace{0.1cm}}
+
+\newcounter{myproblem}[chapter]
+\renewcommand\themyproblem{\thechapter.\arabic{myproblem}}
+
+\newenvironment{myproblems}{
+            \vspace{0.7cm}
+            \begin{singlespace} \vspace{-0.8cm}
+            \def\@currentlabel{\p@myproblem\themyproblem}
+            \begin{list}{}{%
+                \renewcommand{\makelabel}[1]{%
+                    {\sl\bf Problem for the author
+                        \refstepcounter{myproblem}\themyproblem:~\hfill}%
+                    \ifthenelse{\equal{##1}{}}{}{
+                        ({\bf ##1})
+                    }%
+                }%
+                \setlength{\leftmargin}{1cm}
+            }%
+        }%
+        {\end{list}\end{singlespace}\vspace{0.1cm}}
+
+\newcounter{request}[chapter]
+\renewcommand\therequest{\thechapter.\arabic{request}}
+
+\newenvironment{request}{
+            \vspace{0.7cm}
+            \begin{singlespace} \vspace{-0.8cm}
+            \def\@currentlabel{\p@request\therequest}
+            \begin{list}{}{%
+                \renewcommand{\makelabel}[1]{%
+                    {\sl\bf Question to readers
+                        \refstepcounter{request}\therequest:~\hfill}%
+                    \ifthenelse{\equal{##1}{}}{}{
+                        ({\bf ##1})
+                    }%
+                }%
+                \setlength{\leftmargin}{1cm}
+            }%
+        }%
+        {\end{list}\end{singlespace}\vspace{0.1cm}}
+
+\newcounter{mycomment}[chapter]
+\renewcommand\themycomment{\thechapter.\arabic{mycomment}}
+
+\newenvironment{mycomments}{
+            \vspace{0.7cm}
+            \begin{singlespace} \vspace{-0.8cm}
+            \def\@currentlabel{\p@mycomment\themycomment}
+            \begin{list}{}{%
+                \renewcommand{\makelabel}[1]{%
+                    {\sl\bf Comment for the author
+                        \refstepcounter{mycomment}\themycomment:~\hfill}%
+                    \ifthenelse{\equal{##1}{}}{}{
+                        ({\bf ##1})
+                    }%
+                }%
+                \setlength{\leftmargin}{1cm}
+            }%
+        }%
+        {\end{list}\end{singlespace}\vspace{0.1cm}}
+
+\newcounter{example}[chapter]
+\renewcommand\theexample{\thechapter.\arabic{example}}
+
+\newenvironment{examples}{
+            \vspace{0.7cm}
+            \begin{singlespace} \vspace{-0.8cm}
+            \def\@currentlabel{\p@example\theexample}
+            \begin{list}{}{%
+                \renewcommand{\makelabel}[1]{%
+                    {\sl\bf Example
+                        \refstepcounter{example}\theexample:~\hfill}%
+                    \ifthenelse{\equal{##1}{}}{}{
+                        ({\bf ##1})
+                    }%
+                }%
+                \setlength{\leftmargin}{1cm}
+            }%
+        }%
+        {\end{list}\end{singlespace}\vspace{0.1cm}}
+
+\DefineVerbatimEnvironment{myverbatim}{Verbatim}{fontsize=\small}
+
+
+\makeindex
+
+\begin{document}
+
+\title{Beyond Bitcoin}
+\author{Michael Nielsen\thanks{Email: mn@michaelnielsen.org}$^{,}$\thanks{Web: http://michaelnielsen.org/}}
+\date{\today}
+
+\maketitle
+
+\pagestyle{headings}
+\pagenumbering{roman}
+
+\tableofcontents
+
+\chapter{How Bitcoin actually works}
 
 %
 % what I do in this article
 %
-In this article I explain in detail how Bitcoin works.  It's not one
-of the many online ``explanatory articls'' which gloss over crucial
-points.  SOme of those articles are rather slick; I am yet to see one
-which, beneath the slickness, does a really good job of describing
-what's going on.  Rather, my aim is to present all the major ideas
-going into Bitcoin in a clear, comprehensible way.
-
-%
-% What you need as background
-%
-In my explanation, I'll assume that you're comfortable with
-\link{http://en.wikipedia.org/wiki/Public-key_cryptography}{public key
-  cryptography}, and with the closely related idea of
-\link{XXX}{digital signatures}.  I'll also assume you're familiar with
-\link{XXX}{hashing}.  None of this is especially mathematically
-difficult.  It can be (and often is) taught in University freshman
-mathematics or computer science classes.  The ideas are beautiful, so
-if you're not familiar with them, I recommend taking a few hours to
-get familiar.  You can learn it from XXX.
+This article explains how Bitcoin works.  Of course, thousands of
+articles ``explaining'' Bitcoin have been written.  Most are
+superficial explanations, giving vague accounts of the underlying
+cryptographic ideas, and often glued together with an account of the
+Bitcoin soap opera -- ``Is it a bubble?'', ``Who's getting rich?'',
+and so on.  Some articles delve deeper into the technical details, but
+often gloss over crucial points.  Even the
+\link{http://bitcoin.org/bitcoin.pdf}{original paper} introducing
+Bitcoin was vague on key points.  My aim in this article is to present
+all the major ideas behind the Bitcoin protocol in a clear,
+comprehensible way.
 
 %
 % this all sounds like hard work
 %
-Of course, actually understanding the protocol is work.  Wouldn't it
-be more fun to quickly gloss over the protocol, to take Bitcoin for
-granted, and instead engage in wild speculation about the end of
-taxation, etc?  That does seem to be common for many engaged in
-discussion of Bitcoin.  I'll confess that this is an instance where I
-think there's nothing quite like putting in the hard work.  It opens
-up vistas that otherwise are simply inaccessible.
+Of course, understanding the protocol is hard work.  It is tempting to
+take Bitcoin as given, and instead engage in speculation about the end
+of taxation, how to get rich with Bitcoin, whether Bitcoin is a
+bubble, and so on.  That's fun to do, but I don't think you can deeply
+understand Bitcoin without mastering the details of how the protocol
+works.  You'll be commenting on superficial aspects of Bitcoin, and
+missing the fundamentals.  In particular, understanding the details of
+the protocol opens up otherwise inaccessible vistas.  The ideas behind
+Bitcoin actually go far beyond Bitcoin, and can be used to create many
+new types of financial instrument, and potentially new forms of human
+collective behaviour.  That's much more interesting than questions
 
 %
-% why is all this of interest?
+% What you need as background
 %
-Why does Bitcoin matter?
+As background, I assume you're comfortable with
+\link{http://en.wikipedia.org/wiki/Public-key_cryptography}{public key
+  cryptography}, and with the closely related idea of
+\link{https://en.wikipedia.org/wiki/Digital_signature}{digital
+  signatures}.  I'll also assume you're familiar with
+\link{https://en.wikipedia.org/wiki/Cryptographic_hash_function}{cryptographic
+  hashing}.  None of this is especially difficult.  It can be taught
+in freshman university mathematics or computer science classes.  The
+ideas are beautiful, so if you're not familiar with them, I recommend
+taking a few hours to get familiar.  You can learn it from XXX.
 
-This is
-partially of interest because of Bitcoin ain every major idea that
-goes into Bitcoin.  As we'll see, these ideas go far beyond Bitcoin,
-and can be used to create many new types of financial instrument.
+\section{Rediscovering Bitcoin}
 
+We'll begin by designing a very simple digital currency.  To
+distinguish it from Bitcoin we'll call this simple currency
+\emph{Infocoin}.  We'll then criticise Infocoin, and find ways of
+improving the currency.  Through several iterations, we'll build up
+all the ideas that go into the full Bitcoin protocol.  In a sense
+we'll rediscover Bitcoin.
 
-Many people focus on question such as: "Is Bitcoin a bubble?"  "Can I
-use Bitcoin to make myself rich?"  "Is it really a currency?" And so
-on.
-
-I don't think you can appreciate Bitcoin without understanding how the
-protocol works.  Yes, you can pontificate.  But your words will be hot
-air.  You'll be commenting on superficial aspects of Bitcoin, and
-missing the fundamentals.
-
-\section{Discovering Bitcoin}
-
-I could explain how Bitcoin works in one big idea dump.  If you're
-familiar with public key cryptography then it's not hard to understand
-the protocol.  You'd read over it a couple of times, think through
-some examples, and you'd get it.
-
-But while you would grasp the protocol, your understanding would be
-shallow.  You wouldn't thoroughly understand \emph{why} Bitcoin is the
-way it is.  It'd be like memorizing a cooking recipe, without
-understanding why the recipe is put together the way it is.
-
-I want to go deeper than that.
-
-Instead of one big idea dump, we'll build Bitcoin up in stages.  I'll
-start with very simple questions and ideas about how to create a
-digital currency.  Then we'll criticise those ideas, and find ways of
-improving them.  Through several rounds, we'll rediscover Bitcoin.
-
-Of course, this approach is more work than simply reading the
-protocol.  But it's also more informative.  At the end you will
-understand why each element of the protocol is the way it is.  Indeed,
-not only will you understand Bitcoin more deeply than people who don't
-know the protocol, you will, if you work at it, understand Bitcoin
-more deeply than many people who \emph{do} know the protocol, but who
-perhaps don't quite appreciate why the protocol is the way it is.
+This iterative approach takes more work to read than if I explained
+Bitcoin immediately, up-front.  But while you could understand Bitcoin
+that way, it would be difficult to understand \emph{why} all the
+elements of Bitcoin are the way they are.  It'd be like memorizing a
+long cooking recipe, without understanding why the recipe is put
+together the way it is.  The advantage of the iterative presentation
+is that it explains why each element of Bitcoin is the way it is.
 
 \section{Protocol 0: a signed letter of intent}
 
-How can we design a digital currency?  Let's begin by designing a very
-simple (and inadequate) digital currency.  To distinguish it from
-Bitcoin we'll call it \emph{Infocoin}, meaning a unit of currency
-which is pure information.  We'll gradually improve Infocoin through
-several iterations, gradually building up the ideas needed to
-understand Bitcoin.
+So how can we design a digital currency?  The goal of the system is
+simple: Alice wants to be able to transfer money to Bob, simply by
+transmitting a string of bits -- her Infocoin.
 
-The basic idea is for Alice to be able to transmit a string of bits --
-her Infocoin -- to Bob, and the net result is the transfer of money
-from Alice to Bob:
-
-XXX - image.
-
-This idea has many problems.  You might naturally wonder: how could we
-possibly prevent Alice from using the same string of bits over and
-over, and thus minting an infinite supply of money for herself?  How
-could we prevent Bob or someone else forging such strings of bits,
-effectively stealing from Alice?
+You might wonder how we can prevent Alice from using the same bit
+string over and over, thus minting an infinite supply of money for
+herself?  And how can we prevent Bob or someone else forging such
+strings of bits, effectively stealing from Alice?
 
 These and many other problems need to be overcome in order to use
 information as currency.
@@ -118,18 +311,16 @@ information as currency.
 Let's address one of these problems.  Let's find a way to prevent
 someone else forging such a string, and thus stealing from Alice.  To
 do this, Alice writes down the message "I, Alice, am giving Bob one
-dollar".  She then signs the message using her private key and
+Infocoin".  She then signs the message using her private key and
 announces the signed string of bits to the entire world.
 
 Anyone in the world (including Bob) can then use Alice's public key to
 verify that Alice really did sign the message "I, Alice, am giving Bob
 one dollar".  This establishes that Alice truly intends to give Bob
 one dollar. Furthermore, no-one else could have forged the message,
-since only Alice has the private key used to sign the message. 
-
-So using this idea establishes both intent on Alice's part, and
-unforgeability by anyone else.  But this protocol still has many
-problems.
+since only Alice has the private key used to sign the message.  So
+using this idea establishes both intent on Alice's part, and
+unforgeability by anyone else.  
 
 \section{Protocol 1: Using serial numbers to make coins unique}
 
@@ -210,7 +401,7 @@ with that serial number is now in Bob's possession, and no longer
 belongs to Alice.
 
 
-
+\end{document}
 
 
 What ideas do I want to add?
@@ -277,13 +468,13 @@ queue of pending transactions:
 
 XXX
 
-Charlie can see that all the transactions are valid &ndash; they all fit
+Charlie can see that all the transactions are valid; they all fit
 with his existing ledger.  He would <em>like</em> to help out by
 broadcasting the validity to the entire network.  But, unfortunately,
 the rest of the network doesn't know whether or not to trust Charlie.
 
 So here's what Charlie has to do instead.  He takes his entire list of
-pending transactions.  And he chooses a random number as well &ndash;
+pending transactions.  And he chooses a random number as well;
 called a <em>nonce</em>.  Then he hashes the list of transactions
 together with the nonce to produce a hash value:
 
@@ -337,7 +528,7 @@ CHEATING: WORK VERY HARD TO
 <p>
 It's all very well to ask Charlie to work hard to validate a
 transaction.  But why would he bother to do so, expending
-computational power &ndash; power that costs him money &ndash; merely to help
+computational power; power that costs him money; merely to help
 validate other people's transactions?
 </p>
 
@@ -364,7 +555,7 @@ move away from InfoCoin, and describe the actual BitCoin protocol.
 
 You install a wallet program on your computer.
 
-Suppose someone wants to buy something from you &ndash; maybe you're a
+Suppose someone wants to buy something from you; maybe you're a
 merchant who has set up an online store, and you allow people to pay
 using Bitcoin.
 
@@ -448,7 +639,7 @@ Lines 7 through 11 defines the input to the transaction.  In
 particular, lines 8 through 10 tell us that the input is to be taken
 from the ouput from an earlier transaction, with the given
 <code>hash</code>.  The <code>n=0</code> tells us it's to be the first
-output from that transaction &ndash; we'll see soon how multiple
+output from that transaction; we'll see soon how multiple
 outputs (and inputs) from a transaction work, so don't worry too much
 about this for now.  Line 11 contains the signature, followed by a
 space, and then the public key of the person sending the money.  Note
@@ -632,15 +823,14 @@ So provided you never use the same Bitcoin address twice
 
 It's pretty common advice to  
 
-A second oddity is that the transaction as a whole isn't signed.  XXX
-&ndash; TRANSACTION MALLEABILITY.
+A second oddity is that the transaction as a whole isn't signed.  XXX; TRANSACTION MALLEABILITY.
 
 
 
 
 The transaction is labelled by a hash.  This is a hash of parts of the
 remainder of the transaction.  It's not completely clear to me which
-parts &ndash; apparently the transaction is somewhat malleable because of
+parts; apparently the transaction is somewhat malleable because of
 this, but the amounts being paid out, senders and recipients can't be
 changed.
 
