@@ -661,6 +661,73 @@ OKay, at this point the wiki starts to get kind of vague.  I think I'm
 going to go to the original source --- Nakomoto's paper.
 
 
+** Chaum - Blind Signatures for Untraceable Payments (1982)
+
+http://www.seas.gwu.edu/~poorvi/Classes/CS381_2007/ChaumBlindSignatures.pdf
+
+Proposes a "fundamentally new kind of cryptography" to allow a payments scheme such that:
+
+(1) Third parties can't determine payee, time, or amount of payments made by an individual.
+
+Note that this is not exactly the case for Bitcoin.  Of course, it
+depends upon what one menas by "payee".  If you mean public key /
+address, then Bitcoin does disclose this, in the block chain.
+
+(2) Individuals can provide proof of payment (a receipt, I guess).
+
+(3) The ability to stop use of digital cash which is reported stolen.
+
+"No actual example cryptosystem is presented."  It sounds as though
+Chaum didn't have all the ideas quite working.
+
+Blind signature: A trustee wants to hold a secrete ballot.  Electors
+put their vote inside a carbon-lined envelope.  That is then mailed to
+the trustee.  The trustee signs the envelope, and sends it back.  
+
+NOw the elector opens the envelope, and mails back the signed ballot
+slip.
+
+The problem being solved here is basically that we want to be able to
+vote, without the person authenticating our ballot knowing who we
+voted for.  So we get them to sign it without seeing the vote.
+
+Chaum describes the blind signature scheme as having the following
+properties:
+
+1. A signing function s' known only to the signer, and a publicly
+   known inverse.  Think of this as the private key and the public
+   key.
+
+2. An invertible function c and its inverse c', known only to the
+   provider.  We need c' \circ s' c = s'.  c(x) and s' give no clue
+   about x.
+
+3. A way of checking that the search for valid signatures is
+   impractical.
+
+The protocol is to choose x at random, forms c(x) (this is the
+enclosed signature), the signer then applies s' to get s'(c(x)), then
+to apply c' to recover s'(x), the verified signature.
+
+Anyone can then apply the public key to recoved 
+
+That's a blind signature scheme.
+
+Digital cash scheme: protocol
+
+Choose x at random, form note c(x).  Forward note to bank.  Bank signs
+note, debits payer's account, and returns the signed note.  Payer
+strips note to get s'(x).  They check that the bank signed it
+legitimately.  Payer can provide the note s'(x) to payee.  They
+forward the note to the bank, who checks the note, and then adds to a
+list of cleared notes.  Bank credits account of payee, and informs
+payee of acceptance.
+
+Properties:
+
+It's not possible for someone other than the bank to sign the note.
+AT the same time, the bank doesn't know who the payer was.
+
 
 ** Drainville (2012) ``An analysis of the Bitcoin electronic cash system}
 
