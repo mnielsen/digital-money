@@ -728,6 +728,12 @@ Properties:
 It's not possible for someone other than the bank to sign the note.
 AT the same time, the bank doesn't know who the payer was.
 
+Something I don't really understand is why people want anonymity and
+untraceability so much.  I suppose that it makes sense if (a) you want
+to do illegal things; or (b) your government is malicious; or (c) you
+fear (b) occurring.  I guess (c) is a very good reason.  Basically,
+it's a form of decentralization of power.
+
 
 ** Drainville (2012) ``An analysis of the Bitcoin electronic cash system}
 

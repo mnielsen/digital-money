@@ -1,3 +1,6 @@
+%
+% 5211
+%
 \documentclass[12pt]{book}
 
 \usepackage{amsmath}
@@ -277,7 +280,20 @@ in freshman university mathematics or computer science classes.  The
 ideas are beautiful, so if you're not familiar with them, I recommend
 taking a few hours to get familiar.  You can learn it from XXX.
 
-\section{Rediscovering Bitcoin}
+%
+% why does Bitcoin involve so much cryptography
+%
+It may seem surprising that Bitcoin involves so much cryptography --
+after all, you'd think it's about finances and money, not
+cryptography.  But the problems invovled in making Bitcoin work are
+largely about securing transactions -- making sure people can't steal
+from one another, that people are honest, and so on.  In the world of
+atoms we achieve this security with devices such as wallets and safes,
+bank vaults and security guards.  In a digital world this is the job
+of cryptography.  And that's why Bitcoin is essentially a
+cryptographic protocol.
+
+\section{Protocol 0: a signed letter of intent}
 
 We'll begin by designing a very simple digital currency.  To
 distinguish it from Bitcoin we'll call this simple currency
@@ -286,27 +302,27 @@ improving the currency.  Through several iterations, we'll build up
 all the ideas that go into the full Bitcoin protocol.  In a sense
 we'll rediscover Bitcoin.
 
-This iterative approach takes more work to read than if I explained
-Bitcoin immediately, up-front.  But while you could understand Bitcoin
-that way, it would be difficult to understand \emph{why} all the
-elements of Bitcoin are the way they are.  It'd be like memorizing a
-long cooking recipe, without understanding why the recipe is put
-together the way it is.  The advantage of the iterative presentation
-is that it explains why each element of Bitcoin is the way it is.
+This iterative approach is more work to read than if I explained the
+entire Bitcoin protocol in one shot, up-front.  But while you could
+understand Bitcoin that way, it would be difficult to understand
+\emph{why} all the elements of Bitcoin are the way they are.  It'd be
+like memorizing a long cooking recipe, without understanding why the
+recipe is put together the way it is.  The advantage of the iterative
+explanation is that you see how we're very nearly forced to adopt many
+elements of Bitcoin.
 
-\section{Protocol 0: a signed letter of intent}
+So how can we design a digital currency?  The goal is for Alice to be
+able to transfer money to Bob, simply by transmitting a string of bits
+-- her Infocoin.
 
-So how can we design a digital currency?  The goal of the system is
-simple: Alice wants to be able to transfer money to Bob, simply by
-transmitting a string of bits -- her Infocoin.
-
-You might wonder how we can prevent Alice from using the same bit
+Thinking naively, this sounds impossible.  If Alice can use a string
+of bits as money, how can we prevent Alice from using the same bit
 string over and over, thus minting an infinite supply of money for
 herself?  And how can we prevent Bob or someone else forging such
 strings of bits, effectively stealing from Alice?
 
-These and many other problems need to be overcome in order to use
-information as currency.
+These are just two of the many problems that need to be overcome in
+order to use information as currency.
 
 Let's address one of these problems.  Let's find a way to prevent
 someone else forging such a string, and thus stealing from Alice.  To
@@ -317,46 +333,27 @@ announces the signed string of bits to the entire world.
 Anyone in the world (including Bob) can then use Alice's public key to
 verify that Alice really did sign the message "I, Alice, am giving Bob
 one dollar".  This establishes that Alice truly intends to give Bob
-one dollar. Furthermore, no-one else could have forged the message,
-since only Alice has the private key used to sign the message.  So
-using this idea establishes both intent on Alice's part, and
-unforgeability by anyone else.  
+one dollar. Furthermore, it gives Alice at least a limited protection
+from forgery, since only Alice has the private key used to sign the
+message.  So using this idea establishes both intent on Alice's part,
+and unforgeability by anyone else.
 
-\section{Protocol 1: Using serial numbers to make coins unique}
+\textbf{A note on analysing protocols such as Bitcoin:} Before we get
+into an analysis of this protocol, a word on the general strategy to
+adopt in thinking about cryptographic protocols such as the one I've
+just proposed.  If you're not used to analysing cryptographic
+protocols, they can be confusing to analyse.  A partial protocol, like
+the one I've just proposed, may have many different problems --
+multiple ways in which people can cheat, forge money, steal money, and
+so on.  It's easy to become pre-overwhelmed, trying to solve all these
+problems at once, and it becomes difficult to think clearly about the
+protocol.
 
-A problem with Protocol 0 is that Alice could keep sending Bob the
-same signed message over and over.  Suppose Alice sent the message "I,
-Alice, am giving Bob one InfoCoin" ten times.  Does that mean Alice
-sent Bob ten \emph{different} InfoCoins?  Or was her message
-accidentally duplicated?  Worse, perhaps she was trying to trick Bob
-into believing that she had given him ten different InfoCoins, when
-the message only proves to the world that she intends to transfer one
-InfoCoin.
-
-What we'd like is a way of making InfoCoins unique.  They need a label
-or serial number.  Alice would sign the message "I, Alice, am giving
-Bob one InfoCoin, with serial number 8740348".  Then, later, Alice
-could sign the message "I, Alice, am giving Bob one InfoCoin, with
-serial number 8770431", and Bob (and everyone else) would know that
-that this was a \emph{different} InfoCoin that was being transferred.
-
-Again, just as with Protocol 0, there are many problems with this
-proposal.  I'll get to one of those problems in a moment.  Before
-getting to that, however, I want to briefly mention a general problem
-in understanding Bitcoin (or, indeed, any proposal for digital money,
-or cryptographic protocol).  The problem is that when you build a
-protocol up in stages, as I am doing, at any given time there are many
-problems with the protocol -- ways in which people can cheat, forge
-money, steal money, and so on.  It's easy to become pre-occupied
-tinking about how it fails in this, that, or the other way.  Those
-thoughts can become overwhelming, and it becomes difficult to think
-clearly about the protocol.
-
-To overcome this problem, I will begin each stage by identifying just
-a single problem that our currency has.  We will focus on just that
+To overcome this problem, at each stage I will concentrate on just one
+or two problems that our currency has.  We will focus on just that
 problem, and ignore all other issues.  And then I will introduce one
 simple idea that solves the problem.  Then we'll do this over again,
-identifying a problem and a solution, repeating this pattern many
+identifying a problem and a solution, repeating this pattern several
 times, as we gradually build up the protocol.
 
 As we go through this process you're certainly going to have many
@@ -368,38 +365,177 @@ down as clearly as posssible what's bugging you.  Don't worry about
 resolving the problem immediately, just keep a record.  When you get
 to the end, and understand the entire protocol, revisit your list.
 
-\section{Verifying serial numbers by having a bank}
+\section{Protocol 1: Using serial numbers to make coins unique}
 
-I didn't say where Alice would get the serial numbers from.  Should
-she just make them up out of thin air?  Obviously, that'd be
+Alright, let's return to Protocol 0, the one where Alice simply
+digitally signs her intent to transfer.  A problem with this protocol
+is that Alice could keep sending Bob the same signed message over and
+over.  Suppose Alice sent the signed message "I, Alice, am giving Bob
+one Infocoin" ten times.  Does that mean Alice sent Bob ten
+\emph{different} Infocoins?  Or was her message accidentally
+duplicated?  Worse, perhaps she was trying to trick Bob into believing
+that she had given him ten different Infocoins, when the message only
+proves to the world that she intends to transfer one Infocoin.
+
+What we'd like is a way of making Infocoins unique.  They need a label
+or serial number.  Alice would sign the message "I, Alice, am giving
+Bob one Infocoin, with serial number 8740348".  Then, later, Alice
+could sign the message "I, Alice, am giving Bob one Infocoin, with
+serial number 8770431", and Bob (and everyone else) would know that
+that this was a \emph{different} Infocoin that was being transferred.
+
+I haven't yet said where Alice would get the serial numbers from.
+Should she just make them up out of thin air?  Obviously, that'd be
 convenient for her -- she'd have the capacity to print money!  Not
 just that, but there's nothing to prevent her from spending a coin
 with the same serial number twice.
 
-One way to solve these problems is to introduce a <em>bank</em> which
-is the ultimate source of InfoCoins.  This bank provides serial
-numbers, keeps track of who has which coins, and verifies that
-transactions really are legitimate, preventing Alice from simply
-making up serial numbers of her own.
+One way to solve this problem is to introduce a \emph{bank} which is
+the ultimate source of Infocoins.  This bank provides serial numbers,
+keeps track of who has which Infocoins, and verifies that transactions
+really are legitimate, preventing Alice from simply making up serial
+numbers of her own.
 
-To see how this might work in more detail, let's suppose Alice goes
-into the bank, and says "I want to withdraw one InfoCoin from my
-account".  The bank reduces her account balance by one InfoCoin, and
-gives her a new, never-before used serial number, let's say 1234567.
+In more detail, let's suppose Alice goes into the bank, and says "I
+want to withdraw one Infocoin from my account".  The bank reduces her
+account balance by one Infocoin, and gives her a new, never-before
+used serial number, let's say 1234567.
+
+Then, when Alice wants to transfer an Infocoin to Bob, she'd sign the
+message "I, Alice, am giving Bob one Infocoin, with serial number
+1234567".  But Bob doesn't just accept the Infocoin.  Instead, he
+contacts the bank, and verifies that: (a) the Infocoin with that
+serial number belongs to Alice; and (b) Alice hasn't already spent the
+Infocoin.  If both those things are true, then Bob accepts the
+Infocoin, and the bank updates their records to show that the Infocoin
+with that serial number is now in Bob's possession, and no longer
+belongs to Alice.
 
 WHY WHOULD SHE GO TO A BANK IN THE FIRST PLACE?  IT'D BE THE ULTIMATE
 ORIGIN OF ALL BITCOINS.
 
-Now, when Alice wants to transfer an InfoCoin to Bob, she'd sign the
-message "I, Alice, am giving Bob one InfoCoin, with serial number
-1234567".  But Bob doesn't just accept the InfoCoin.  Instead, he
-contacts the bank, and verifies that: (a) the InfoCoin with that
-serial number belongs to Alice; and (b) Alice hasn't already spent the
-InfoCoin.  If both those things are true, then Bob accepts the
-InfoCoin, and the bank updates their records to show that the InfoCoin
-with that serial number is now in Bob's possession, and no longer
-belongs to Alice.
 
+
+
+
+
+\section{Getting rid of the bank}
+
+This last solution looks pretty good.  But it does have the problem
+that it involves making use of a trusted bank.
+
+The idea is to make it so \emph{everyone} is the bank.  In particular,
+we're going to assume that everyone using Infocoin keeps a complete
+record of which Infocoins belong to which person.  You can think of
+this as being like a ledger showing all transactions.  We'll call this
+ledger the \emph{block chain}, since that's what the complete record
+will be called in Bitcoin, once we get to it.
+
+Now, suppose Alice wants to transfer an Infocoin to Bob.  She signs
+the message "I, Alice, am giving Bob one Infocoin, with serial number
+1234567".  Bob broadcasts out a message to the network, saying: "Hey,
+does Alice have Infocoin 1234567?"  Provided the majority of users in
+the network are honest, most of the messages Bob gets back will say
+"Yes, Alice does have that Infocoin".  Bob waits until he's heard from
+enough users that he's confident that most people believe Alice owns
+that coin, and then he accepts the Infocoin.  He broadcasts his
+acceptance, and everyone in the network updates the block chain.
+
+\section{Proof-of-work}
+
+A problem with this protocol has to do with the honesty of network
+users.  Suppose a thief decides to imitate a large number of separate
+Infocoin users.  For example, if Bob was a thief he could use an
+automated system to set up a million separate identities on the
+Infocoin network.  He could then steal from Alice by broadcasting out
+to the network the message "I, Alice, am giving Bob one InfoCoin, with
+serial number 1234567".  Then he
+
+We can solve this problem using an idea known as \emph{proof-of-work}.
+The idea is that third parties will have to do some work -- basically,
+they have to solve a computational puzzle -- to take part in the
+approval process.  This sounds crazy.  Why make it hard to help in the
+approval process?  But it turns out to have a really good result: it
+makes it very unlikely that anyone will try to impersonate a million
+people on the network, since they'd need to solve a million puzzles,
+and that will cost them real money.
+
+In more detail, here's how it works.
+
+Suppose Alice broadcasts to the network the news that "I, Alice, am
+giving Bob one Infocoin, with serial number 1234567".  
+
+As other people hear the message, they add it to a queue of pending
+transactions that they've been told about, but which haven't yet been
+approved by the network.  For instance, a third party named Charlie
+might have the following queue of pending transactions:
+
+I, Tom, am giving Sue one Infocoin, with serial number 1201174
+
+I, Sydney, am giving Cynthia one Infocoin, with serial number 1295618
+
+I, Alice, am giving Bob one Infocoin, with serial number 1234567
+
+Charlie checks his ledger, and can see that each of the transactions
+are valid.  He would \emph{like} to help out by broadcasting the
+validity to the entire network.  But, unfortunately, the rest of the
+network doesn't know whether or not to trust Charlie.
+
+So here's the puzzle Charlie has to solve.  He takes his entire list
+of pending transactions.  He appends to that list of transactions a
+number of his choice, let's denote it $x$, and then hashes the list of
+transactions plus $x$ to produce a hash value:
+
+XXX
+
+The puzzle Charlie has to solve -- the proof-of-work -- is to find a
+number $x$ so that the output hash ends with a long string of zeroes:
+
+XXX
+
+This is \emph{hard} to do.  The reason it's hard is because the output
+from a (good) cryptographic hash functions is supposed to behave more
+or less like a random number.  So if we want the output hash value to
+finish with 10 zeroes, say, then Charlie will need to try something
+like $16^{10} \approx 10^{12}$ different values for $x$ before he.
+
+If Charlie should happen to find such an $x$ then (celebration!)  he
+broadcasts the list of transactions he's approving to the network,
+together with the value for $x$.  Other participants in the Infocoin
+network can verify that $x$ is a valid solution to the proof-of-work
+puzzle.  And they then update their block chains to 
+
+
+chooses a random number as well; called
+a \emph{nonce}.  Just to be concrete, lets suppose he chooses the
+nonce XXX.  Then he hashes the list of transactions together with the
+nonce to produce a hash value:
+
+
+It's a bit like having a lottery to approve transactions.  But each
+ticket in the lottery costs a little bit of computing power.  If
+millions of people are entering, then Charlie would only have a very
+small chance to corrupt the process, unless he expends enormous (and
+very costly) computational resources.
+
+\section{Reward for work, and the origin of Infocoins}
+
+A problem with proof-for-work is that while it's all very well to ask
+Charlie to work hard to validate a transaction, why would he bother to
+do so, expending computational power; power that costs him real money;
+merely to help validate other people's transactions?  If he
+
+The solution to this problem is to reward the people who help find the
+proof-of-work.  In particular, suppose we credit whoever validates the
+block with some Infocoins.  Provided the Infocoin reward is large
+enough that gives them an incentive to participate in the mining.
+
+Of course, this gives rise to many economic questions.  It changes the
+total supply of Infocoins.  And it sets up interesting economics
+around mining.  Does Infocoin mining end up in concentrated in the
+hands of a few, or many?  If it's just a few, doesn't that endanger
+the security of the system?  We'll look at these questions below in
+the context of Bitcoin.  
 
 \end{document}
 
@@ -410,91 +546,8 @@ What ideas do I want to add?
 XXX: MODIFICATION: Modify by replacing the serial number by a pointer
 to the previous transaction.
 
+Modifications: not everyone needs to have a copy of the block chain.
 
-Make everyone the bank
-
-Problem: We don't want a trusted bank.
-
-The idea is to make it so <em>everyone</em> is the bank.  In
-particular, we're going to assume that everyone using InfoCoin keeps a
-complete record of which coins belong to which person.  You can think
-of this as being like a ledger showing all transactions.  We'll call
-it the <em>block chain</em>, since that's what the complete record is
-called in Bitcoin.
-
-Now, suppose Alice wants to transfer an InfoCoin to Bob.  She signs
-the message "I, Alice, am giving Bob one InfoCoin, with serial number
-1234567".  Bob broadcasts out a message to the network, saying: "Hey,
-does Alice have InfoCoin 1234567?"  Provided the majority of users in
-the network are honest, Bob gets a message back saying "Yes, Alice
-does".  Bob accepts the InfoCoin
-
-</div>
-
-<h3>Proof-of-work</h3>
-
-<div class="section">
-
-There's a problem here with honesty.  A thief could imitate a large
-number of separate InfoCoin users, and use that to approve fraudulent
-transactions.  
-
-For instance, if Bob was the thief, he could steal from Alice by
-broadcasting out to the network the message "I, Alice, am giving Bob
-one InfoCoin, with serial number 1234567".  Then he 
-
-We can solve this using an idea known as <em>proof-of-work</em>.  The
-idea is to make it <em>hard</em> to take part in the approval process.
-If people have to expend tremendous amounts of processing power to
-corrupt the approval process, then that'll be a real obstacle to them
-doing so.
-
-Here's how it works.
-
-Suppose Alice broadcasts to the network the news that "I, Alice, am
-giving Bob one InfoCoin, with serial number 1234567".  And suppose
-Charlie hears this message.
-
-As other people
-hear the message, they don't have the ability to immediately approve
-the mesage.  Instead, they add it to a queue of pending transactions
-that they've been told about, but which haven't yet been approved by
-the network:
-
-XXX
-
-Suppose, for instance, that a third party, Charlie, has a particular
-queue of pending transactions:
-
-XXX
-
-Charlie can see that all the transactions are valid; they all fit
-with his existing ledger.  He would <em>like</em> to help out by
-broadcasting the validity to the entire network.  But, unfortunately,
-the rest of the network doesn't know whether or not to trust Charlie.
-
-So here's what Charlie has to do instead.  He takes his entire list of
-pending transactions.  And he chooses a random number as well;
-called a <em>nonce</em>.  Then he hashes the list of transactions
-together with the nonce to produce a hash value:
-
-XXX
-
-What Charlie has to do is to find a nonce so that the output hash
-starts with a long string of zeroes:
-
-XXX
-
-This is <em>hard</em> to do.  
-
-
-You can think of it as having a lottery to approve transactions.  But
-each ticket in the lottery costs a little bit of computing power.  If
-millions of people are entering, then Charlie would only have a very
-small chance to corrupt the process, unless he expends enormous (and
-very costly) computational resources.
-
-</div>
 
 <h3>Why have a chain?</h3>
 
@@ -523,30 +576,6 @@ CHEATING: WORK VERY HARD TO
 
 </div>
 
-<h3>Reward for work, and the origin of InfoCoins</h3>
-
-<p>
-It's all very well to ask Charlie to work hard to validate a
-transaction.  But why would he bother to do so, expending
-computational power; power that costs him money; merely to help
-validate other people's transactions?
-</p>
-
-<p>
-The solution to this problem is to reward the people who help find the
-proof-of-work.  In particular, suppose we credit whoever validates the
-block with some InfoCoins.  Provided the InfoCoin reward is large
-enough that gives them an incentive to participate in the mining.
-</p>
-
-<p>
-Of course, this gives rise to many economic questions.  It changes the
-total supply of InfoCoins.  And it sets up interesting economics
-around mining.  Does InfoCoin mining end up in concentrated in the
-hands of a few, or many?  If it's just a few, doesn't that endanger
-the security of the system?  We'll look at these questions below in
-the context of Bitcoin.
-</p>
 
 <h3>Bitcoin</h3>
 
@@ -972,5 +1001,36 @@ accounts by people who seem very knowledgeable and utterly confident
 -- and who turn out to be completely wrong.  Sometimes this is
 indicative of shady behaviour.  But more often it's just routine
 over-confidence.  Don't believe everything you read.
+
+
+%
+% why anonymity and untraceability?
+%
+Many Bitcoin fans make a big deal out of the relative anonymity and
+difficulty of tracing Bitcoin.  What makes anonymity and
+untraceability desirable in a currency?
+
+The obvious reason a person might want anonymity and untraceability is
+if they plan to do something illegal.  Online marketplaces such as
+\link{https://en.wikipedia.org/wiki/Silk_Road_(marketplace)}{Silk
+  Road}, \link{XXX}{XXX}, and \link{XXX}{XXX} use Bitcoin to make it
+possible to buy and sell illegal drugs, XXX, XXX, and many other
+illegal items and services.
+
+Enabling this kind of crime is not a good argument in favour of
+Bitcoin!  However, there is a better argument to be made.  Control
+over currency gives a government power.  We see this, for example, in
+the way the US State Department and other organizations
+\link{https://en.wikipedia.org/wiki/WikiLeaks#U.S._diplomatic_cables_leak_responses}{put
+  pressure on Wikileaks} by getting organizations such as PayPal and
+MasterCard to freeze accounts owned by WikiLeaks.  Now, if you dislike
+WikiLeaks this may not seem like such a bad thing.  But it's not
+difficult to imagine variations on this which would be unequivocally
+bad.  In the early 1990s, human rights groups in the Sudan had their
+assets frozen, and in some cases confiscated, by an unfriendly
+government.  Such examples suggest that a citizenry is safest if
+government control over currency is minimized, except in the case of a
+compelling interest.  One way of minimizing that control is make a
+currency anonymous and untraceable.
 
 \end{document}
