@@ -1,5 +1,5 @@
 %
-% 5211
+% 5836
 %
 \documentclass[12pt]{book}
 
@@ -255,16 +255,14 @@ comprehensible way.
 % this all sounds like hard work
 %
 Of course, understanding the protocol is hard work.  It is tempting to
-take Bitcoin as given, and instead engage in speculation about the end
-of taxation, how to get rich with Bitcoin, whether Bitcoin is a
-bubble, and so on.  That's fun to do, but I don't think you can deeply
-understand Bitcoin without mastering the details of how the protocol
-works.  You'll be commenting on superficial aspects of Bitcoin, and
-missing the fundamentals.  In particular, understanding the details of
-the protocol opens up otherwise inaccessible vistas.  The ideas behind
-Bitcoin actually go far beyond Bitcoin, and can be used to create many
-new types of financial instrument, and potentially new forms of human
-collective behaviour.  That's much more interesting than questions
+take Bitcoin as given, and instead engage in speculation about how to
+get rich with Bitcoin, whether Bitcoin is a bubble, whether it means
+the end of taxation, and so on.  That's fun, but severely limits your
+understanding of Bitcoin.  Understanding the details of the protocol
+opens up otherwise inaccessible vistas.  The ideas behind Bitcoin can
+be used to create many new types of financial instrument; those, in
+turn, have the potential to create new forms of collective human
+behaviour.  
 
 %
 % What you need as background
@@ -283,43 +281,46 @@ taking a few hours to get familiar.  You can learn it from XXX.
 %
 % why does Bitcoin involve so much cryptography
 %
-It may seem surprising that Bitcoin involves so much cryptography --
-after all, you'd think it's about finances and money, not
-cryptography.  But the problems invovled in making Bitcoin work are
-largely about securing transactions -- making sure people can't steal
-from one another, that people are honest, and so on.  In the world of
-atoms we achieve this security with devices such as wallets and safes,
-bank vaults and security guards.  In a digital world this is the job
-of cryptography.  And that's why Bitcoin is essentially a
-cryptographic protocol.
+It may be surprising that Bitcoin's basis is cryptography.  After all,
+it appears to be about finances and money, not sending secret
+messages.  But the problems that need to be solved to make Bitcoin
+work are largely about securing transactions -- making sure people
+can't steal from one another, that one person can't impersonate
+another, and so on.  In the world of atoms we achieve this security
+with devices such as locks, safes, bank vaults and security guards.
+In the digital world this is the job of cryptography.  And that's why
+Bitcoin is essentially a cryptographic protocol.
 
-\section{Protocol 0: a signed letter of intent}
+\section{Rediscovering Bitcoin}
 
 We'll begin by designing a very simple digital currency.  To
 distinguish it from Bitcoin we'll call this simple currency
-\emph{Infocoin}.  We'll then criticise Infocoin, and find ways of
-improving the currency.  Through several iterations, we'll build up
-all the ideas that go into the full Bitcoin protocol.  In a sense
-we'll rediscover Bitcoin.
+\emph{Infocoin}.  We'll then criticise Infocoin, and find a way of
+improving the currency.  Through several iterations of this process,
+we'll build up all the ideas that go into the full Bitcoin protocol.
+In a sense we'll rediscover Bitcoin.
 
 This iterative approach is more work to read than if I explained the
 entire Bitcoin protocol in one shot, up-front.  But while you could
-understand Bitcoin that way, it would be difficult to understand
-\emph{why} all the elements of Bitcoin are the way they are.  It'd be
-like memorizing a long cooking recipe, without understanding why the
-recipe is put together the way it is.  The advantage of the iterative
-explanation is that you see how we're very nearly forced to adopt many
-elements of Bitcoin.
+understand the mechanics of Bitcoin that way, it would be difficult to
+understand why all the elements of Bitcoin are the way they are.  It'd
+be like memorizing a long cooking recipe, without understanding why
+the recipe is put together the way it is.  The advantage of the
+iterative explanation is that you can see piece by piece how the
+elements of Bitcoin are built up.
+
+\section{A signed letter of intent}
 
 So how can we design a digital currency?  The goal is for Alice to be
 able to transfer money to Bob, simply by transmitting a string of bits
 -- her Infocoin.
 
-Thinking naively, this sounds impossible.  If Alice can use a string
-of bits as money, how can we prevent Alice from using the same bit
-string over and over, thus minting an infinite supply of money for
-herself?  And how can we prevent Bob or someone else forging such
-strings of bits, effectively stealing from Alice?
+I must admit that when I first heard about digital money, I thought it
+sounded impossible.  If Alice can use a string of bits as money, how
+can we prevent Alice from using the same bit string over and over,
+thus minting an infinite supply of money for herself?  And how can we
+prevent Bob or someone else forging such strings of bits, effectively
+stealing from Alice?
 
 These are just two of the many problems that need to be overcome in
 order to use information as currency.
@@ -330,52 +331,63 @@ do this, Alice writes down the message "I, Alice, am giving Bob one
 Infocoin".  She then signs the message using her private key and
 announces the signed string of bits to the entire world.
 
-Anyone in the world (including Bob) can then use Alice's public key to
-verify that Alice really did sign the message "I, Alice, am giving Bob
-one dollar".  This establishes that Alice truly intends to give Bob
-one dollar. Furthermore, it gives Alice at least a limited protection
-from forgery, since only Alice has the private key used to sign the
-message.  So using this idea establishes both intent on Alice's part,
-and unforgeability by anyone else.
+This achieves two things.  First, anyone in the world (including Bob)
+can then use Alice's public key to verify that Alice really did sign
+the message "I, Alice, am giving Bob one Infocoin".  This establishes
+that Alice truly intends to give Bob one Infocoin.
+
+Second, this gives Alice at least a limited protection from forgery,
+since only Alice has the private key used to sign the message.  Of
+course, once Alice has published her message it's possible for other
+people to duplicate the message, so in that sense forgery is possible.
+But before that initial act of publication, there's no way someone
+else can forge that bit string; the initial construction can only be
+done by Alice!  
+
+To put this in a slightly different way, suppose someone encounters
+the signed message ``I, Alice, am giving Bob one Infocoin''.  If they
+verify the signature, then they know that at some point Alice did sign
+that message.
 
 \textbf{A note on analysing protocols such as Bitcoin:} Before we get
-into an analysis of this protocol, a word on the general strategy to
-adopt in thinking about cryptographic protocols such as the one I've
-just proposed.  If you're not used to analysing cryptographic
-protocols, they can be confusing to analyse.  A partial protocol, like
-the one I've just proposed, may have many different problems --
-multiple ways in which people can cheat, forge money, steal money, and
-so on.  It's easy to become pre-overwhelmed, trying to solve all these
-problems at once, and it becomes difficult to think clearly about the
+into an analysis of this protocol, a word on how to think about
+cryptographic protocols.  Such protocols often have many problems --
+in the context of digital money, that means multiple ways in which
+people can cheat, forge money, steal money, and so on.  It's easy to
+become overwhelmed by all the problems, and to think that you need to
+look for a silver bullet solution which solves all the problems at
+once.  This makes it difficult to think clearly about the protocol.
+
+A better way to proceed is to concentrate on just one or two problems
+at a time, and to ignore all other issues.  That's what we'll do.  At
+each stage I'll identify just one or two problems, and then introduce
+one or two simple ideas that solve that problem or problems.  Then
+we'll do this over again, identifying a problem and a solution,
+repeating this pattern several times, as we gradually build up the
 protocol.
 
-To overcome this problem, at each stage I will concentrate on just one
-or two problems that our currency has.  We will focus on just that
-problem, and ignore all other issues.  And then I will introduce one
-simple idea that solves the problem.  Then we'll do this over again,
-identifying a problem and a solution, repeating this pattern several
-times, as we gradually build up the protocol.
+As we go through this process you'll likely have many thoughts about
+(often glaring) holes in the protocol-of-the-moment.  You'll have to
+trust that I will eventually resolve all those problems!  To build
+confidence, I suggest keeping notes as you go -- if something's
+bugging you, then pause in your reading, and write down as clearly as
+posssible what's bugging you.  Don't worry about resolving the problem
+immediately, just keep a record.  When you finally understand the
+entire protocol, revisit your list, and see if the problem has been
+addressed.
 
-As we go through this process you're certainly going to have many
-thoughts about (often glaring) holes in the protocol-of-the-moment.
-You'll just have to trust that I will eventually resolve all those
-problems!  To build your confidence, I suggest keeping notes as you go
--- if something's bugging you, then pause in your reading, and write
-down as clearly as posssible what's bugging you.  Don't worry about
-resolving the problem immediately, just keep a record.  When you get
-to the end, and understand the entire protocol, revisit your list.
-
-\section{Protocol 1: Using serial numbers to make coins unique}
+\section{Using serial numbers to make coins unique}
 
 Alright, let's return to Protocol 0, the one where Alice simply
-digitally signs her intent to transfer.  A problem with this protocol
-is that Alice could keep sending Bob the same signed message over and
-over.  Suppose Alice sent the signed message "I, Alice, am giving Bob
-one Infocoin" ten times.  Does that mean Alice sent Bob ten
-\emph{different} Infocoins?  Or was her message accidentally
-duplicated?  Worse, perhaps she was trying to trick Bob into believing
-that she had given him ten different Infocoins, when the message only
-proves to the world that she intends to transfer one Infocoin.
+digitally signs her intent to transfer an Infocoin to Bob.  A problem
+with this protocol is that Alice could keep sending Bob the same
+signed message over and over.  Suppose Alice sent the signed message
+"I, Alice, am giving Bob one Infocoin" ten times.  Does that mean
+Alice sent Bob ten \emph{different} Infocoins?  Was her message
+accidentally duplicated?  Worse, perhaps she was trying to trick Bob
+into believing that she had given him ten different Infocoins, when
+the message only proves to the world that she intends to transfer one
+Infocoin.
 
 What we'd like is a way of making Infocoins unique.  They need a label
 or serial number.  Alice would sign the message "I, Alice, am giving
@@ -386,15 +398,15 @@ that this was a \emph{different} Infocoin that was being transferred.
 
 I haven't yet said where Alice would get the serial numbers from.
 Should she just make them up out of thin air?  Obviously, that'd be
-convenient for her -- she'd have the capacity to print money!  Not
-just that, but there's nothing to prevent her from spending a coin
-with the same serial number twice.
+convenient for her -- she'd have the capacity to print money!  And
+we'd still have the problem that there's nothing to prevent her from
+spending a coin with the same serial number twice.
 
 One way to solve this problem is to introduce a \emph{bank} which is
 the ultimate source of Infocoins.  This bank provides serial numbers,
 keeps track of who has which Infocoins, and verifies that transactions
-really are legitimate, preventing Alice from simply making up serial
-numbers of her own.
+really are legitimate, preventing Alice from making up serial numbers
+of her own.
 
 In more detail, let's suppose Alice goes into the bank, and says "I
 want to withdraw one Infocoin from my account".  The bank reduces her
@@ -411,45 +423,66 @@ Infocoin, and the bank updates their records to show that the Infocoin
 with that serial number is now in Bob's possession, and no longer
 belongs to Alice.
 
-WHY WHOULD SHE GO TO A BANK IN THE FIRST PLACE?  IT'D BE THE ULTIMATE
-ORIGIN OF ALL BITCOINS.
-
-
-
-
-
-
 \section{Getting rid of the bank}
 
-This last solution looks pretty good.  But it does have the problem
-that it involves making use of a trusted bank.
+This last solution looks pretty good.  It's still got many problems --
+problems like how to authenticate the identities of Alice, Bob and the
+bank -- but it doesn't seem like much of a stretch to believe that
+that with some further thought we could overcome those problems.
+
+However, it turns out that we can do something much more ambitious.
+We can actually eliminate the bank from the protocol.  This changes
+the nature of the currency considerably, since a single organization
+is no longer in charge.  XXX --- Why should we care?  Should we care?
 
 The idea is to make it so \emph{everyone} is the bank.  In particular,
-we're going to assume that everyone using Infocoin keeps a complete
-record of which Infocoins belong to which person.  You can think of
-this as being like a ledger showing all transactions.  We'll call this
-ledger the \emph{block chain}, since that's what the complete record
-will be called in Bitcoin, once we get to it.
+we'll assume that everyone using Infocoin keeps a complete record of
+which Infocoins belong to which person.  You can think of this as
+being like a ledger showing all transactions.  We'll call this ledger
+the \emph{block chain}, since that's what the complete record will be
+called in Bitcoin, once we get to it.
 
 Now, suppose Alice wants to transfer an Infocoin to Bob.  She signs
 the message "I, Alice, am giving Bob one Infocoin, with serial number
-1234567".  Bob broadcasts out a message to the network, saying: "Hey,
-does Alice have Infocoin 1234567?"  Provided the majority of users in
-the network are honest, most of the messages Bob gets back will say
-"Yes, Alice does have that Infocoin".  Bob waits until he's heard from
-enough users that he's confident that most people believe Alice owns
-that coin, and then he accepts the Infocoin.  He broadcasts his
-acceptance, and everyone in the network updates the block chain.
+1234567", and broadcasts that out to the entire network.  Bob can use
+his copy of the block chain to check that, indeed, the coin is Alice's
+to give.  If that checks out then he can broadcast his acceptance of
+the transaction, and everyone will update their copy of the block
+chain.
+
+There is, however, a problem with this.  Suppose Alice wants to cheat
+by double spending her Infocoin.  She sends the signed message ``I,
+Alice, am giving Bob one Infocoin, with serial number 1234567'' to
+Bob, and the message``I, Alice, am giving Charlie one Infocoin, with
+serial number 1234567'' to Charlie.  Both Bob and Charlie use their
+block chain to verify that the Infocoin is Alice's to spend.  In both
+cases it checks out, and they each broadcast their acceptance of the
+transaction.
+
+Now, this wouldn't be such a problem.  What we need is a way that (a)
+is guaranteed to resolve any ambiguity in the block chain; and (b)
+will do so
+
+Other users
+in the network check to see whether Alice does, in fact, have that
+Infocoin to give Bob.  If so, then they broadcast out the message
+"Yes, Alice does have Infocoin 1234567, it can now be transferred to
+Bob.''  Once enough people have broadcast that message, everyone
+updates their block chain to show that Infocoin 1234567 now belongs to
+Bob, and the transaction is complete.
 
 \section{Proof-of-work}
 
 A problem with this protocol has to do with the honesty of network
-users.  Suppose a thief decides to imitate a large number of separate
+users.  Suppose Alice is a 
+
+a thief decides to imitate a large number of separate
 Infocoin users.  For example, if Bob was a thief he could use an
 automated system to set up a million separate identities on the
 Infocoin network.  He could then steal from Alice by broadcasting out
 to the network the message "I, Alice, am giving Bob one InfoCoin, with
-serial number 1234567".  Then he
+serial number 1234567".  Then he could swamp the network with messages
+saying ``Yes, this is a leg
 
 We can solve this problem using an idea known as \emph{proof-of-work}.
 The idea is that third parties will have to do some work -- basically,
@@ -503,7 +536,8 @@ If Charlie should happen to find such an $x$ then (celebration!)  he
 broadcasts the list of transactions he's approving to the network,
 together with the value for $x$.  Other participants in the Infocoin
 network can verify that $x$ is a valid solution to the proof-of-work
-puzzle.  And they then update their block chains to 
+puzzle.  And they then update their block chains to reflect the new
+transactions.
 
 
 chooses a random number as well; called
@@ -523,7 +557,9 @@ very costly) computational resources.
 A problem with proof-for-work is that while it's all very well to ask
 Charlie to work hard to validate a transaction, why would he bother to
 do so, expending computational power; power that costs him real money;
-merely to help validate other people's transactions?  If he
+merely to help validate other people's transactions?  And if he's not
+willing to expend that power, then the whole system falls apart --
+there is no reason for an honest participant to
 
 The solution to this problem is to reward the people who help find the
 proof-of-work.  In particular, suppose we credit whoever validates the
@@ -536,6 +572,7 @@ around mining.  Does Infocoin mining end up in concentrated in the
 hands of a few, or many?  If it's just a few, doesn't that endanger
 the security of the system?  We'll look at these questions below in
 the context of Bitcoin.  
+
 
 \end{document}
 
@@ -1003,6 +1040,8 @@ indicative of shady behaviour.  But more often it's just routine
 over-confidence.  Don't believe everything you read.
 
 
+\section{Why anonymity and untraceability?}
+
 %
 % why anonymity and untraceability?
 %
@@ -1032,5 +1071,26 @@ government.  Such examples suggest that a citizenry is safest if
 government control over currency is minimized, except in the case of a
 compelling interest.  One way of minimizing that control is make a
 currency anonymous and untraceable.
+
+
+ECONOMICS OF MINING: I don't think it's at all clear what the long-run
+value of Bitcoin mining is.  It's a complicated problem.  What are the
+tradeoffs involved in setting up an equilibrium?
+
+Let's suppose the (appropriately amortized) cost of mining a bitcoin
+is less than a bitcoin.  (There should be a risk premium, too.)
+
+The equilibrium: 
+
+
+
+Will effective banks still re-emerge?  What's the difference between a
+marketplace / exchange and a bank, anyway?
+
+
+
+The boostrapping problem in describing a currency.  When you write
+about a currency such as Bitcoin there's an inherent oddity.  There's
+always a point at which the description of the currency stops.
 
 \end{document}

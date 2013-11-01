@@ -5,7 +5,7 @@ Or I may write a series.  What would a series look like?
 
 + How Bitcoin works: a 
 
-* Notes
+* Individual points
 ** Transactions
 
 A transaction has a number of inputs and a number of outputs.  The
@@ -626,6 +626,35 @@ The big questions:
 
 Economics as a design science. 
 
+* Linear working notes
+Do I really believe that you can't master B without und. how the protocol works?
+
+That's not ex right.  The thing is, you can start to understand some
+of the economic ramifications without und. how the protocol works.  In
+fact, you could arguably get quite good at it.  Not everyone who
+understands thermo understands mechanics.
+
+Wallets and safes.  Wallets are really about convenience, not
+security.  So they're a poor choice.
+
+Do I want to talk about diital currency?  Or do I want to talk about
+digital money?
+
+Why do we care about eliminating the bank from the protocol?  It's
+actually not so obvious.  Lots of bitcoiners seem to have a visceral
+hatred of banks, but that's not a principled argument.
+
+I'm actually having some trouble understanding why (or
+remembering... I may have known this in the past) the proof of work is
+needed.  I don't see how Bob can steal from Alice if people are simply
+honest in keeping their ledgers.  Simply don't accept a transaction if
+it doesn't look legit.
+
+Another way would be for Alice to try to double spend.  So she has a
+bitcoin.  She tries to spend that bitcoin with both Bob and Charlie.
+She broadcasts out the message about Bob.  It is approved.  Then at a
+later time she tries to do the same with Charlie.  The obvious thing
+is for Charlie not to accept.  What's wrong with that?
 
 * Notes on papers
 ** Bitcoin wiki ``How Bitcoin works''
