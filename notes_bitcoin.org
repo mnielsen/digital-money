@@ -656,6 +656,7 @@ She broadcasts out the message about Bob.  It is approved.  Then at a
 later time she tries to do the same with Charlie.  The obvious thing
 is for Charlie not to accept.  What's wrong with that?
 
+
 * Notes on papers
 ** Bitcoin wiki ``How Bitcoin works''
 

@@ -1,5 +1,5 @@
 %
-% 5836
+% 6722
 %
 \documentclass[12pt]{book}
 
@@ -349,6 +349,12 @@ the signed message ``I, Alice, am giving Bob one Infocoin''.  If they
 verify the signature, then they know that at some point Alice did sign
 that message.
 
+XXX --- what's the digital money here?  It's just the message itself:
+the digitally signed ``XXX''.  This will remain true in more elaborate
+protocols as well --- the digital money will just be more and more
+elaborate messages (with a surrounding protocol for all parties to
+agree on the transaction).
+
 \textbf{A note on analysing protocols such as Bitcoin:} Before we get
 into an analysis of this protocol, a word on how to think about
 cryptographic protocols.  Such protocols often have many problems --
@@ -375,6 +381,18 @@ posssible what's bugging you.  Don't worry about resolving the problem
 immediately, just keep a record.  When you finally understand the
 entire protocol, revisit your list, and see if the problem has been
 addressed.
+
+XXX - How to read crypto.  More generally, reading cryptography is
+difficult work.  You certainly can't read it quickly, likely a novel.
+But you can't even read it somewhat more slowly, as you might read a
+conventional technical document.  Cryptographic protocols tend to be a
+bit like puzzles, with interlocking parts put very carefully put
+together.  To really understand them you need to examine all those
+connections carefully, looking at them from many difficult angles, and
+gradually getting to the point that it's all in your head at once.
+That's tough work, but, as with a well-designed puzzle, there is also
+a beauty to it, once you get the entirety of the protocol inside your
+head, and understand how all the parts relate.
 
 \section{Using serial numbers to make coins unique}
 
@@ -444,11 +462,11 @@ called in Bitcoin, once we get to it.
 
 Now, suppose Alice wants to transfer an Infocoin to Bob.  She signs
 the message "I, Alice, am giving Bob one Infocoin, with serial number
-1234567", and broadcasts that out to the entire network.  Bob can use
-his copy of the block chain to check that, indeed, the coin is Alice's
-to give.  If that checks out then he can broadcast his acceptance of
-the transaction, and everyone will update their copy of the block
-chain.
+1234567", and gives the signed message to Bob.  Bob can use his copy
+of the block chain to check that, indeed, the coin is Alice's to give.
+If that checks out then he can broadcast both Alice's message and his
+acceptance of the transaction to the entire network, and everyone will
+update their copy of the block chain.
 
 There is, however, a problem with this.  Suppose Alice wants to cheat
 by double spending her Infocoin.  She sends the signed message ``I,
@@ -457,32 +475,74 @@ Bob, and the message``I, Alice, am giving Charlie one Infocoin, with
 serial number 1234567'' to Charlie.  Both Bob and Charlie use their
 block chain to verify that the Infocoin is Alice's to spend.  In both
 cases it checks out, and they each broadcast their acceptance of the
-transaction.
+transaction (and Alice's signed messages).  How then should other
+people update their block chains?  Even if everyone can agree on a
+consistent way to update their block chains, so everyone agrees on who
+has which Infocoins, there is still the problem that either Bob or
+Charlie will be cheated.
 
-Now, this wouldn't be such a problem.  What we need is a way that (a)
-is guaranteed to resolve any ambiguity in the block chain; and (b)
-will do so
+Now, at first this seems like it would be difficult for Alice to pull
+off.  After all, if Alice sends the message first to Bob, then Bob can
+quickly verify it, and then tell everyone else in the network
+(including Charlie) to update their block chain.  Once that has
+happened, Charlie would no longer be fooled by Alice. So there is only
+a narrow window of time in which Alice can double spend.  However,
+it's undesirable to have such a window of time.  Worse, there are
+things Alice could do to make that window broader.  She could, for
+example, look for times when Bob and Charlie are likely to have a lot
+of latency in communication, perhaps by doing internet traffic
+analysis, or maybe by deliberately trying to disrupt communications.
+If she can slow down communication even a little that makes her task
+of double spending significantly easier.
 
-Other users
-in the network check to see whether Alice does, in fact, have that
-Infocoin to give Bob.  If so, then they broadcast out the message
-"Yes, Alice does have Infocoin 1234567, it can now be transferred to
-Bob.''  Once enough people have broadcast that message, everyone
-updates their block chain to show that Infocoin 1234567 now belongs to
-Bob, and the transaction is complete.
+How can we address the problem of double spending?  The obvious
+solution is that when Alice sends Bob an Infocoin, Bob shouldn't try
+to verify the transcation alone.  Rather, he should broadcast the
+possible transaction to the entire network of Infocoin users, and ask
+them to help determine whether the transaction is legitimate.  If they
+collectively decide that the transaction is okay, then Bob can accept
+the Infocoin, and everyone will update their block chain
+appropriately.
+
+That's a good high level description.  How would it work in detail?
+Our goal is to find a procedure that: (1) guarantees that the network
+can collectively resolve any ambiguity in the block chain; and (2) the
+resolution won't allow anyone to be cheated.
+
+Let's suppose Alice wants to give Bob an Infocoin.  As before, she
+signs the message "I, Alice, am giving Bob one Infocoin, with serial
+number 1234567", and gives the signed message to Bob.  Also as before,
+Bob does a basic sanity check, using his copy of the block chain to
+check that, indeed, the coin is Alice's to give.  But at that point
+things differ.  He doesn't just go ahead and accept the transaction at
+this point.  Instead, he broadcast Alice's message to the entire
+network.  Other members of the network check to see whether Alice
+does, in fact, have that Infocoin to give Bob.  If so, then they
+broadcast out the message "Yes, Alice does have Infocoin 1234567, it
+can now be transferred to Bob.''  Once enough people have broadcast
+that message, everyone updates their block chain to show that Infocoin
+1234567 now belongs to Bob, and the transaction is complete.
+
+Note, incidentally, that I've left this protocol somewhat vague.  For
+instance, what does it mean to say ``once enough people have broadcast
+that message''?  What does ``enough'' mean?  How does everyone agree
+on this?  I'm going to leave this a little vague for now.  In the next
+section I'm going to point out a serious problem with this approach.
+We'll fix the problem, and in the process make the ideas above both
+better, and also more specific.
+
 
 \section{Proof-of-work}
 
 A problem with this protocol has to do with the honesty of network
-users.  Suppose Alice is a 
+users.  Suppose Alice wants to double spend.  She could use an
+automated automated system to set up a large number of separate
+identities on the Infocoin network. 
 
-a thief decides to imitate a large number of separate
-Infocoin users.  For example, if Bob was a thief he could use an
-automated system to set up a million separate identities on the
-Infocoin network.  He could then steal from Alice by broadcasting out
-to the network the message "I, Alice, am giving Bob one InfoCoin, with
-serial number 1234567".  Then he could swamp the network with messages
-saying ``Yes, this is a leg
+ He could then steal from Alice by
+broadcasting out to the network the message "I, Alice, am giving Bob
+one InfoCoin, with serial number 1234567".  Then he could swamp the
+network with messages saying ``Yes, this is a leg
 
 We can solve this problem using an idea known as \emph{proof-of-work}.
 The idea is that third parties will have to do some work -- basically,
