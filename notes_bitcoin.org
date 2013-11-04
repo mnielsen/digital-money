@@ -656,8 +656,39 @@ She broadcasts out the message about Bob.  It is approved.  Then at a
 later time she tries to do the same with Charlie.  The obvious thing
 is for Charlie not to accept.  What's wrong with that?
 
+What do I think of the title?  How Bitcoin really works?  Suggests
+that people have been misled.  actually is probably closer.  It might
+even be better to eliminate "actually"?  I think the problem 
 
-* Notes on papers
+The nuts and bolts of how Bitcoin works
+
+Bitcoin: the details
+
+Bitcoin: up close and personal
+
+THis article explains the nitty-gritty of how Bitcoin works.
+
+Isn't Bitcoin about money?
+
+"finances and money": I'm using this because there's a problem here
+that I don't understand.
+
+What do I think about the section breakup here?
+
+* Notes on essays, papers, videos, etc
+
+** Bejerano - "How Bitcoin works under the hood" 2013
+
+https://www.youtube.com/watch?v=5HIi4KMExcA
+
+A different signature every time.  This is a nice point.  Once it's
+been used, that's the end.  Basically, once a transaction has been
+broadcast there's no point in re-broadcasting it.
+
+There are a number of (relatively minor) errors.
+
+
+
 ** Bitcoin wiki ``How Bitcoin works''
 
 Each coin is associated with its current owner's public ECDSA key.
@@ -1219,13 +1250,52 @@ decline; rapid growth in the 1600s; more Malthusian decline in the
 second half of the 17th century.  Then growth during the 19th century.
 Szabo attempts to connect this to literacy.
 
+
+** Wenger 2013
+
+http://www.usv.com/posts/bitcoin-as-protocol
+
+Not much that's new.  But it's interesting to see an article from an
+investor that isn't stupid.
+
+Correctly gets that a key innovation in Bitcoin is the ability to
+maintain a distributed public ledger.  Describes a ledger as a
+write-only system.  (Nice point: by this definition, Quickbooks
+doesn't have a ledger.)
+
+"There is no other widely used protocol in the world today that
+accomplishes this: with bitcoin anyone can make a statement (a
+transaction) and have this be recorded in a globally visible and fixed
+ledger."
+
+THis is genuinely insightful --- a very nice distillation of what
+Bitcoin enables.  And it makes it obvious that Bitcoin isn't really so
+limited to finances as all that. But there's a missing half to his
+statement: the statement can potentially be parsed in a large number
+of ways.  What you really want is two things:
+
++ A protocol that enables a distributed legder.
+
++ Protocols that sit on top of this, for parsing statements in the
+  ledger. 
+
+Interesting pointer on colored coins.  Notes something I've wondered
+about before --- maintaining all stock ownership in this way.  And, of
+course, things like derivatives can trivially be done in this way.
+
 * Queue
+
+Namecoin.
+
+Colored bitcoins.  http://www.coindesk.com/colored-coins-paint-sophisticated-future-for-bitcoin/
 
 Nick Szabo's blog and essays
 
 http://www.erights.org/
 
 Felten's article
+
+Make explicit how to do derivatives using Bitcoin.
 
 TOR.
 

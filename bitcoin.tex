@@ -1,5 +1,5 @@
 %
-% 6722
+% 7658
 %
 \documentclass[12pt]{book}
 
@@ -239,88 +239,83 @@
 %
 % what I do in this article
 %
-This article explains how Bitcoin works.  Of course, thousands of
-articles ``explaining'' Bitcoin have been written.  Most are
-superficial explanations, giving vague accounts of the underlying
-cryptographic ideas, and often glued together with an account of the
-Bitcoin soap opera -- ``Is it a bubble?'', ``Who's getting rich?'',
-and so on.  Some articles delve deeper into the technical details, but
-often gloss over crucial points.  Even the
+This article explains in detail how the Bitcoin protocol works.  Of
+course, many thousands of articles ``explaining'' Bitcoin have been
+written.  Most of these articles are superficial, giving only a vague
+account of the underlying cryptographic ideas, and omitting many
+details.  Even those articles which delve deeper often gloss over
+crucial points.  Remarkably, this includes even the
 \link{http://bitcoin.org/bitcoin.pdf}{original paper} introducing
-Bitcoin was vague on key points.  My aim in this article is to present
-all the major ideas behind the Bitcoin protocol in a clear,
-comprehensible way.
+Bitcoin, which was vague at a number of key points.  My aim in this
+article is to present all the major ideas behind the Bitcoin protocol
+in a clear, comprehensible way.
 
 %
 % this all sounds like hard work
 %
-Of course, understanding the protocol is hard work.  It is tempting to
-take Bitcoin as given, and instead engage in speculation about how to
-get rich with Bitcoin, whether Bitcoin is a bubble, whether it means
-the end of taxation, and so on.  That's fun, but severely limits your
-understanding of Bitcoin.  Understanding the details of the protocol
-opens up otherwise inaccessible vistas.  The ideas behind Bitcoin can
-be used to create many new types of financial instrument; those, in
-turn, have the potential to create new forms of collective human
-behaviour.  
+Understanding the protocol is hard work.  It is tempting to instead
+take Bitcoin as given, and to engage in speculation about how to get
+rich with Bitcoin, whether Bitcoin is a bubble, whether it means the
+end of taxation, and so on.  That's fun, but severely limits your
+understanding.  Understanding the details of the Bitcoin protocol
+opens up otherwise inaccessible vistas.  It makes it possible to
+understand how Bitcoin can be used to create new types of financial
+instrument, and, in turn, how those financial instruments can be used
+to enable new forms of collective human behaviour.  Talk about fun!
 
 %
 % What you need as background
 %
-As background, I assume you're comfortable with
+To understand this post, you'll need to be comfortable with
 \link{http://en.wikipedia.org/wiki/Public-key_cryptography}{public key
   cryptography}, and with the closely related idea of
 \link{https://en.wikipedia.org/wiki/Digital_signature}{digital
   signatures}.  I'll also assume you're familiar with
 \link{https://en.wikipedia.org/wiki/Cryptographic_hash_function}{cryptographic
-  hashing}.  None of this is especially difficult.  It can be taught
-in freshman university mathematics or computer science classes.  The
-ideas are beautiful, so if you're not familiar with them, I recommend
-taking a few hours to get familiar.  You can learn it from XXX.
+  hashing}.  None of this is especially difficult.  The basic ideas
+can be taught in freshman university mathematics or computer science
+classes.  The ideas are beautiful, so if you're not familiar with
+them, I recommend taking a few hours to get familiar.
 
 %
 % why does Bitcoin involve so much cryptography
 %
-It may be surprising that Bitcoin's basis is cryptography.  After all,
-it appears to be about finances and money, not sending secret
-messages.  But the problems that need to be solved to make Bitcoin
-work are largely about securing transactions -- making sure people
-can't steal from one another, that one person can't impersonate
-another, and so on.  In the world of atoms we achieve this security
-with devices such as locks, safes, bank vaults and security guards.
-In the digital world this is the job of cryptography.  And that's why
-Bitcoin is essentially a cryptographic protocol.
+It may seem surprising that Bitcoin's basis is cryptography.  Isn't
+Bitcoin a form of currency, not a way of sending secret messages?  But
+the problems that need to be solved to make Bitcoin work are largely
+about securing transactions -- making sure people can't steal from one
+another, that one person can't impersonate another, and so on.  In the
+world of atoms we achieve security with devices such as locks, safes,
+bank vaults, and security guards.  In the digital world this kind of
+security is achieved through cryptography.  And that's why Bitcoin is
+at heart a cryptographic protocol.
 
 \section{Rediscovering Bitcoin}
 
-We'll begin by designing a very simple digital currency.  To
-distinguish it from Bitcoin we'll call this simple currency
-\emph{Infocoin}.  We'll then criticise Infocoin, and find a way of
-improving the currency.  Through several iterations of this process,
-we'll build up all the ideas that go into the full Bitcoin protocol.
-In a sense we'll rediscover Bitcoin.
+I could explain the entire Bitcoin protocol in one shot, up-front.
+But while you could understand the mechanics of the protocol that way,
+you wouldn't understand \emph{why} Bitcoin is designed the way it is.
+We'll get a deeper understanding by building Bitcoin up in stages.
+I'll begin by explaining a very simple digital currency, based on
+ideas that are almost obvious.  We'll then go through several
+iterations, with each iteration introducing one simple new idea.  In
+this way we'll gradually build up a deep understanding of all the
+ideas that go into the full Bitcoin protocol.  In a sense we'll
+rediscover Bitcoin.
 
-This iterative approach is more work to read than if I explained the
-entire Bitcoin protocol in one shot, up-front.  But while you could
-understand the mechanics of Bitcoin that way, it would be difficult to
-understand why all the elements of Bitcoin are the way they are.  It'd
-be like memorizing a long cooking recipe, without understanding why
-the recipe is put together the way it is.  The advantage of the
-iterative explanation is that you can see piece by piece how the
-elements of Bitcoin are built up.
+
+To distinguish this currency from
+Bitcoin we'll call it \emph{Infocoin}.  
 
 \section{A signed letter of intent}
 
-So how can we design a digital currency?  The goal is for Alice to be
-able to transfer money to Bob, simply by transmitting a string of bits
--- her Infocoin.
+So how can we design a digital currency?  
 
-I must admit that when I first heard about digital money, I thought it
-sounded impossible.  If Alice can use a string of bits as money, how
-can we prevent Alice from using the same bit string over and over,
-thus minting an infinite supply of money for herself?  And how can we
-prevent Bob or someone else forging such strings of bits, effectively
-stealing from Alice?
+At first, digital money sounds impossible.  If Alice can use a string
+of bits as money, how can we prevent Alice from using the same bit
+string over and over, thus minting an infinite supply of money for
+herself?  And how can we prevent Bob or someone else forging such
+strings of bits, effectively stealing from Alice?
 
 These are just two of the many problems that need to be overcome in
 order to use information as currency.
@@ -328,8 +323,8 @@ order to use information as currency.
 Let's address one of these problems.  Let's find a way to prevent
 someone else forging such a string, and thus stealing from Alice.  To
 do this, Alice writes down the message "I, Alice, am giving Bob one
-Infocoin".  She then signs the message using her private key and
-announces the signed string of bits to the entire world.
+Infocoin".  She then signs the message using a private cryptographic
+key, and announces the signed string of bits to the entire world.
 
 This achieves two things.  First, anyone in the world (including Bob)
 can then use Alice's public key to verify that Alice really did sign
@@ -523,191 +518,164 @@ can now be transferred to Bob.''  Once enough people have broadcast
 that message, everyone updates their block chain to show that Infocoin
 1234567 now belongs to Bob, and the transaction is complete.
 
-Note, incidentally, that I've left this protocol somewhat vague.  For
-instance, what does it mean to say ``once enough people have broadcast
-that message''?  What does ``enough'' mean?  How does everyone agree
-on this?  I'm going to leave this a little vague for now.  In the next
-section I'm going to point out a serious problem with this approach.
-We'll fix the problem, and in the process make the ideas above both
-better, and also more specific.
+This protocol helps prevent double spending, since if Alice tries to
+spend her Infocoin with both Bob and Charlie, other people on the
+network will notice, and network users will tell both Bob and Charlie
+that there is a problem with the transaction, and the transaction
+shouldn't go through.
+
+Note that this protocol is somewhat vague as I've explained it above.
+For instance, what does it mean to say ``once enough people have
+broadcast that message''?  What exactly does ``enough'' mean?  It
+can't mean everyone in the network, since we don't \emph{a priori}
+even know \emph{who} is in the network.  For the same reason, it can't
+mean some fixed fraction of users in the network.  How does everyone
+agree on this?  There are many ways we could try to answer these
+questions.  I'm going to leave this a little vague for now.  In the
+next section I'm going to point out a serious problem with this
+approach.  We'll fix the problem, and in the process make the ideas
+above both better, and also more specific.
 
 
 \section{Proof-of-work}
 
 A problem with this protocol has to do with the honesty of network
 users.  Suppose Alice wants to double spend.  She could use an
-automated automated system to set up a large number of separate
-identities on the Infocoin network. 
+automated system to set up a large number of separate identities on
+the Infocoin network.  Those users would all be sock puppets for
+Alice.  She then tries to double spend the same Infocoin with both Bob
+and Charlie.  When Bob and Charlie ask the network to validate their
+respective transactions, Alice's sock puppet identities swamp the
+network, announcing that they've validated both transations.
 
- He could then steal from Alice by
-broadcasting out to the network the message "I, Alice, am giving Bob
-one InfoCoin, with serial number 1234567".  Then he could swamp the
-network with messages saying ``Yes, this is a leg
+How can we avoid this type of problem using an idea known as
+\emph{proof-of-work}.  The idea is that other users on the network
+will have to do some work -- basically, they have to solve a difficult
+computational puzzle -- to validate a transaction.  This sounds crazy.
+Why make it hard to help in the validation process?  But it turns out
+to have a really good result: it makes it very unlikely that anyone
+will try to impersonate a million people on the network, since they'd
+need to solve a million puzzles, and that will cost them more than
+it's worth
 
-We can solve this problem using an idea known as \emph{proof-of-work}.
-The idea is that third parties will have to do some work -- basically,
-they have to solve a computational puzzle -- to take part in the
-approval process.  This sounds crazy.  Why make it hard to help in the
-approval process?  But it turns out to have a really good result: it
-makes it very unlikely that anyone will try to impersonate a million
-people on the network, since they'd need to solve a million puzzles,
-and that will cost them real money.
-
-In more detail, here's how it works.
+In more detail, here's how proof-of-work works.
 
 Suppose Alice broadcasts to the network the news that "I, Alice, am
 giving Bob one Infocoin, with serial number 1234567".  
 
 As other people hear the message, they add it to a queue of pending
 transactions that they've been told about, but which haven't yet been
-approved by the network.  For instance, a third party named Charlie
-might have the following queue of pending transactions:
+approved by the network.  For instance, another network user named
+David might have the following queue of pending transactions:
 
-I, Tom, am giving Sue one Infocoin, with serial number 1201174
+I, Tom, am giving Sue one Infocoin, with serial number 1201174.
 
-I, Sydney, am giving Cynthia one Infocoin, with serial number 1295618
+I, Sydney, am giving Cynthia one Infocoin, with serial number 1295618.
 
-I, Alice, am giving Bob one Infocoin, with serial number 1234567
+I, Alice, am giving Bob one Infocoin, with serial number 1234567.
 
-Charlie checks his ledger, and can see that each of the transactions
-are valid.  He would \emph{like} to help out by broadcasting the
-validity to the entire network.  But, unfortunately, the rest of the
-network doesn't know whether or not to trust Charlie.
+David checks his ledger, and can see that each transaction is valid.
+He would like to help out by broadcasting the validity to the entire
+network.  But, unfortunately, the rest of the network doesn't know
+whether or not to trust David.
 
-So here's the puzzle Charlie has to solve.  He takes his entire list
-of pending transactions.  He appends to that list of transactions a
-number of his choice, let's denote it $x$, and then hashes the list of
-transactions plus $x$ to produce a hash value:
-
-XXX
-
-The puzzle Charlie has to solve -- the proof-of-work -- is to find a
+So here's the puzzle David has to solve.  He starts with his entire
+list of pending transactions.  Let's give that list a name, we'll call
+it $l$.  Then he appends to that list $l$ a number of his choice,
+let's denote it $x$, and then hashes the combination $l, x$ to produce
+a hash value:
+\begin{eqnarray}
+h(l, x) = XXX
+\end{eqnarray}
+The puzzle David has to solve -- the proof-of-work -- is to find a
 number $x$ so that the output hash ends with a long string of zeroes:
 
 XXX
 
-This is \emph{hard} to do.  The reason it's hard is because the output
-from a (good) cryptographic hash functions is supposed to behave more
-or less like a random number.  So if we want the output hash value to
-finish with 10 zeroes, say, then Charlie will need to try something
-like $16^{10} \approx 10^{12}$ different values for $x$ before he.
+This is hard to do.  It's hard because the output from a (good)
+cryptographic hash function behaves like a random number: change the
+input, even a tiny bit, and the output from the hash function changes
+completely, in a way that's very hard to predict.  So if we want the
+output hash value to finish with 10 zeroes, say, then David will
+need to try something like $16^{10} \approx 10^{12}$ different values
+for $x$ before he 
 
-If Charlie should happen to find such an $x$ then (celebration!)  he
+If David should happen to find such an $x$ then (celebration!)  he
 broadcasts the list of transactions he's approving to the network,
 together with the value for $x$.  Other participants in the Infocoin
 network can verify that $x$ is a valid solution to the proof-of-work
 puzzle.  And they then update their block chains to reflect the new
 transactions.
 
+In this scheme, we're basically having a competition to approve
+transactions.  Each entry in the competition costs a little bit of
+computing power.  If a large number of people are entering the
+competition, then Alice has only a small chance to corrupt the
+process, unless she expends a huge amount of computing resources.
+That's likely to cost more than it's worth to her to double spend,
+unless she's double spending a large number of Infocoins.
 
-chooses a random number as well; called
-a \emph{nonce}.  Just to be concrete, lets suppose he chooses the
-nonce XXX.  Then he hashes the list of transactions together with the
-nonce to produce a hash value:
-
-
-It's a bit like having a lottery to approve transactions.  But each
-ticket in the lottery costs a little bit of computing power.  If
-millions of people are entering, then Charlie would only have a very
-small chance to corrupt the process, unless he expends enormous (and
-very costly) computational resources.
+XXX --- called a \emph{nonce}.  
 
 \section{Reward for work, and the origin of Infocoins}
 
 A problem with proof-for-work is that while it's all very well to ask
-Charlie to work hard to validate a transaction, why would he bother to
-do so, expending computational power; power that costs him real money;
-merely to help validate other people's transactions?  And if he's not
-willing to expend that power, then the whole system falls apart --
-there is no reason for an honest participant to
+network users such as David to work hard to validate transactions, why
+would they bother to do so, expending computational power that costs
+them money, merely to help validate other people's transactions?  And
+if network users such as David are not willing to expend that power,
+then the whole system falls apart.
 
-The solution to this problem is to reward the people who help find the
-proof-of-work.  In particular, suppose we credit whoever validates the
-block with some Infocoins.  Provided the Infocoin reward is large
-enough that gives them an incentive to participate in the mining.
+The solution to this problem is to reward the people who help validate
+transactions.  In particular, suppose we credit whoever validates a
+set of transactions with some Infocoins.  Provided the Infocoin reward
+is large enough that gives them an incentive to participate in
+validation.  In Bitcoin, this validation process is called
+\emph{mining}, since it can result in 
 
-Of course, this gives rise to many economic questions.  It changes the
-total supply of Infocoins.  And it sets up interesting economics
-around mining.  Does Infocoin mining end up in concentrated in the
-hands of a few, or many?  If it's just a few, doesn't that endanger
-the security of the system?  We'll look at these questions below in
-the context of Bitcoin.  
+Of course, this gives rise to many questions.  How much reward is
+enough to persuade people to participate in the mining?  How does the
+change in supply of Infocoins affect the Infocoin economy?  Does
+Infocoin mining end up in concentrated in the hands of a few, or many?
+If it's just a few, doesn't that endanger the security of the system?
+We'll look at these questions below in the context of Bitcoin.
 
-
-\end{document}
-
-
-What ideas do I want to add?
-
-
-XXX: MODIFICATION: Modify by replacing the serial number by a pointer
-to the previous transaction.
-
-Modifications: not everyone needs to have a copy of the block chain.
-
-
-<h3>Why have a chain?</h3>
-
-<div class="section">
-
-Why have a chain?
-
-
-Why point 
-
-To approve the 
-
-In particular, they actually have to solve a difficult puzzle before
-they can approve a transaction.
-
-
-
-when a potential transaction is broadcast
-
-
-
-Make it take constant time.
-
-
-CHEATING: WORK VERY HARD TO 
-
-</div>
-
-
-<h3>Bitcoin</h3>
+\section{Bitcoin}
 
 Alright, we've now understood the main ideas behind BitCoin.  Let's
-move away from InfoCoin, and describe the actual BitCoin protocol.
+move away from Infocoin, and describe the actual BitCoin protocol.
 
-You install a wallet program on your computer.
-
-Suppose someone wants to buy something from you; maybe you're a
-merchant who has set up an online store, and you allow people to pay
-using Bitcoin.
-
-Well, you first tell your wallet to generate a private key / public
-key pair.  Then your wallet generates a <em>Bitcoin address</em>: this
-is just a hashed version of the public key:
-
-XXX
-
+You install a wallet program on your computer.  Just to give you a
+sense of what this means, here's a screenshot of a wallet program
+called \link{XXX}{Multbit}.  You can see the Bitcoin balance -- a
+measly 2 dollars and 18 cents -- and a recent transaction, depositing
+that 2 dollars and 18 cents:
+% 
+\img{images/wallet_transaction}{400px}
+%
+Suppose you're a merchant who has set up an online store, and you've
+decided to tell allow people to pay using Bitcoin.  What you do is
+tell your wallet to generate a \emph{Bitcoin address}.  What it does
+is generates a public / private key pair, and then it generates your
+Bitcoin address, which is just a hashed version of the public key:
+%
+\img{images/bitcoin_address}{400px}
+%
 You then send your Bitcoin address to the person who wants to send you
-Bitcoins:
+Bitcoins.  You could do this in email, or even put it up publicly on a
+webpage.  This is quite safe -- after all, it's a hash of your public
+key, which is intended to be known by the world, anyway.  (I'll return
+later to the question of why we hash the public key to obtain the
+Bitcoin address.)
 
-XXX
+The person who is going to pay you then generates a
+\emph{transaction}.  Let's take a look at the raw data from an
+\link{http://blockexplorer.com/tx/7c402505be883276b833d57168a048cfdf306a926484c0b58930f53d89d036f9}{actual
+  transaction} transferring $0.31900000$ bitcoins.  I've added line
+numbers, for ease of reference in the explanation below, but otherwise
+this all the data in the transaction.
 
-This is quite safe -- after all, it's a hash of your public key, which
-is intended to be known by the world, anyway.  (I'll return later to
-the use of the hash.)
-
-They [XXX] then generate a <em>transaction</em>.  Let's take a look at
-the raw data from an <a
-href="http://blockexplorer.com/tx/7c402505be883276b833d57168a048cfdf306a926484c0b58930f53d89d036f9">actual
-transaction</a> transferring $0.31900000$ (XXX) bitcoins.  I've added
-line numbers, for ease of reference in the explanation below, but
-otherwise this all the data in the transaction.
-
-<pre>
+\begin{verbatim} 
 1.  {"hash":"7c402505be883276b833d57168a048cfdf306a926484c0b58930f53d89d036f9",
 2.  "ver":1,
 3.  "vin_sz":1,
@@ -722,66 +690,45 @@ otherwise this all the data in the transaction.
 12. "out":[
 13.   {"value":"0.31900000",
 14.    "scriptPubKey":"OP_DUP OP_HASH160 a7db6ff121871c65a8924b8e40f160d385515ad7 OP_EQUALVERIFY OP_CHECKSIG"}]}
-</pre>
+\end{verbatim}
 
-<p>
 Let's go through this, line by line.
-</p>
 
-<p>
 Line 1 contains the hash of the remainder of the transaction.  This is
 used as an identifier for the transaction.
-</p>
 
-<p>
 Line 2 tells us that this is a transaction in version 1 of the Bitcoin
 protocol.
-</p>
 
-<p>
 Lines 3 and 4 tell us that the transaction has one input and one
 output, respectively.  I'll talk below about transactions with more
-inputs and outputs, and why that's useful.
-</p>
+inputs and outputs, and why that's useful. 
 
+Line 5 contains the value for \verb|lock_time|, which can be used to
+control when a transaction is finalized.  For most Bitcoin
+transactions being carried out (at least today) the \verb|lock_time|
+is set to 0, which means the transaction is finalized immediately.
 
-<p>
-Line 5 is a detail.  It contains the value for <code>lock_time</code>,
-which can be used to control when a transaction is finalized.  In this
-case, as for most Bitcoin transactions being carried out today, the
-<code>lock_time</code> is set to 0, which means the transaction is
-finalized immediately.
-</p>
+Line 6 tells us the size (in bytes) of the transaction.  Note that
+it's not the monetary amount being transferred!  That comes later.
 
-<p>
-Line 6 is also a detail, telling us the size (in bytes) of the
-transaction.  The important thing here is to understand that this
-<em>isn't</em> the monetary amount being transferred!  That comes
-later.
-</p>
-
-<p>
-Lines 7 through 11 defines the input to the transaction.  In
+Lines 7 through 11 define the input to the transaction.  In
 particular, lines 8 through 10 tell us that the input is to be taken
 from the ouput from an earlier transaction, with the given
-<code>hash</code>.  The <code>n=0</code> tells us it's to be the first
-output from that transaction; we'll see soon how multiple
-outputs (and inputs) from a transaction work, so don't worry too much
-about this for now.  Line 11 contains the signature, followed by a
-space, and then the public key of the person sending the money.  Note
-that the signature is for the data in lines 8 through 10.
-</P>
+\verb|hash|.  The \verb|n=0| tells us it's to be the first output from
+that transaction; we'll see soon how multiple outputs (and inputs)
+from a transaction work, so don't worry too much about this for now.
+Line 11 contains the signature, followed by a space, and then the
+public key of the person sending the money.  Note that the signature
+is for the data in lines 8 through 10. 
 
-<p>
 Lines 12 through 14 define the output from the transaction.  In
 particular, line 13 tells us the value of the output, 0.39000000
 bitcoins, or 39,000,000 satoshis.  Line 14 is somewhat complicated.
 The main thing, however, is that the long string "a7db6ff12..." is the
 Bitcoin address of the intended recipient of the funds.
-</P>
 
-
-<h3>Transactions with multiple inputs and outputs</h3>
+\section{Transactions with multiple inputs and outputs}
 
 I described above how a transaction with just a single input and a
 single output works.
@@ -912,7 +859,7 @@ XXX
 
 Change.
 
-<h3>Oddities of Bitcoin</h3>
+\section{Oddities of Bitcoin}
 
 Bitcoin has several oddities.
 
@@ -950,6 +897,60 @@ So provided you never use the same Bitcoin address twice
 It's pretty common advice to  
 
 A second oddity is that the transaction as a whole isn't signed.  XXX; TRANSACTION MALLEABILITY.
+
+
+Note that not everyone in the Bitcoin network actually participates in
+mining.
+
+
+
+\section{}
+
+
+\emph{If you enjoyed this essay, you may like to follow \link{XXX}{my
+    blog} or \link{XXX}{follow me on Twitter}.  You might also like my
+  XXX.}
+
+\end{document}
+
+
+What ideas do I want to add?
+
+
+XXX: MODIFICATION: Modify by replacing the serial number by a pointer
+to the previous transaction.
+
+Modifications: not everyone needs to have a copy of the block chain.
+
+
+<h3>Why have a chain?</h3>
+
+<div class="section">
+
+Why have a chain?
+
+
+Why point 
+
+To approve the 
+
+In particular, they actually have to solve a difficult puzzle before
+they can approve a transaction.
+
+
+
+when a potential transaction is broadcast
+
+
+
+Make it take constant time.
+
+
+CHEATING: WORK VERY HARD TO 
+
+</div>
+
+
 
 
 
@@ -1100,6 +1101,41 @@ indicative of shady behaviour.  But more often it's just routine
 over-confidence.  Don't believe everything you read.
 
 
+\chapter{Scripting in Bitcoin}
+
+In Douglas Adams's ``Hitchiker's Guide to the Galaxy'' books, one of
+the characters tells the protagonist, Arthur, ``The insurance business
+is completely screwy now.  You know they've reintroduced the death
+penalty for insurance company directors'' ``Really'', says
+Arthur. ``No, I didn't.  For what offense?''  The other character
+frowns and replies ``What do you mean, offense?''
+
+It's not a bad line, at least if you're not an insurance company
+director.  There's a natural tension between people who buy insurance,
+and people who sell insurance.  But if we step back from our self
+interest a bit, then we can appreciate how marvellous an invention
+insurance is.  The first modern insurance contract was made in the
+port of Genoa in 1343.  At the time, merchant shipping was incredibly
+expensive and risky, and few individuals could bear the risk of
+funding an expedition.  Maritime insurance helped spread the risk, and
+made it much easier for people to fund expeditions.  The idea spread
+rapidly through seafaring Europe, helping enable the great age of
+exploration, and the first wave of globalization.  It was an example
+of a financial instrument which enabled people to co-ordinate with one
+enough in new ways, and thus opened up new forms of collective
+behaviour.
+
+Like insurance, Bitcoin is a new type of financial instrument.  Also
+like insurance, Bitcoin has the capacity to
+
+This is where the interesting innovation will happen.  Two ways: (1)
+By services based on scripting (clients, in particular); (2)
+
+There is also 
+
+
+Bitcoin address shortener.
+
 \section{Why anonymity and untraceability?}
 
 %
@@ -1152,5 +1188,70 @@ marketplace / exchange and a bank, anyway?
 The boostrapping problem in describing a currency.  When you write
 about a currency such as Bitcoin there's an inherent oddity.  There's
 always a point at which the description of the currency stops.
+
+
+
+For a currency with so much emphasis on security, Bitcoin is amusingly
+insecure.  In principle it has been designed with security in mind.
+But it's attracted a considerable number of scammers looking to
+get-rich-quick secure.  the nature of the users it has attracted is
+such that it's
+
+\chapter{The Bitcoin scripting language}
+
+
+\chapter{Bitcoin as a two-layer protocol}
+
+The Bitcoin protocol combines two abilities:
+
+(1) The ability to maintain a global, distributed, public,
+authenticated, write-only ledger, to which arbitrary (signed) messages
+can be written by any member of the Bitcoin network.
+
+(2) The ability to parse and act on messages in the ledger, treating
+them as a generalization of our traditional notion of money.
+
+At the moment Bitcoin intertwines these two abilities.  Bitcoin would
+be made more powerful if these two abilities were pulled apart into
+two separate protocols:
+
+(1) A \emph{ledger protol} implementing a global, distributed, public,
+authenticated, write-only ledger, to which arbitrary (signed) messages
+can be written by any member of the Bitcoin network.
+
+(2) Building on top of the ledger protocol, a separate \emph{payment
+  protocol} for parsing and acting on the messages in the ledger.
+
+These two protocols together could easily be used to reimplement the
+existing Bitcoin protocol.  The reason for separating the protocols is
+that the ledger protocol would be, in its own right, an extremely
+powerful capability.  Many other protocols could be built on top of
+this capability, protocols that implement very different functionality
+from Bitcoin.
+
+The proposal I'm making is similar to the way the
+\link{https://en.wikipedia.org/wiki/Internet_protocol_suite}{internet
+  protocol} is divided into (relatively) separate layers taking care
+of separate functionality.  For example, there is a link layer which
+takes care of local network behaviour.  Built on top of that is the
+internet layer, which enables packets of data to be moved between
+remote hosts.  And on top of that are the transport and application
+layers, which have separate functionalities again.
+
+This division of the internet protocol into separate layers has
+enabled the internet to support many different applications ---
+everything from the web to email to World of Warctaft.  I believe that
+separating out the ledger protocol in a clean way would have a similar
+impact, opening up the development of many other applications.  Quite
+aside from the technical implications,
+
+
+\section{Planning}
+
++ How Bittorrent works.
+
++ Matching theorems.
+
++ Why not just chip companies doing mining?  If it's profitable...
 
 \end{document}
