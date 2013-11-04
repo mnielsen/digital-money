@@ -290,104 +290,79 @@ bank vaults, and security guards.  In the digital world this kind of
 security is achieved through cryptography.  And that's why Bitcoin is
 at heart a cryptographic protocol.
 
-\section{Rediscovering Bitcoin}
-
-I could explain the entire Bitcoin protocol in one shot, up-front.
-But while you could understand the mechanics of the protocol that way,
-you wouldn't understand \emph{why} Bitcoin is designed the way it is.
-We'll get a deeper understanding by building Bitcoin up in stages.
-I'll begin by explaining a very simple digital currency, based on
-ideas that are almost obvious.  We'll then go through several
-iterations, with each iteration introducing one simple new idea.  In
-this way we'll gradually build up a deep understanding of all the
-ideas that go into the full Bitcoin protocol.  In a sense we'll
-rediscover Bitcoin.
-
-
-To distinguish this currency from
-Bitcoin we'll call it \emph{Infocoin}.  
-
-\section{A signed letter of intent}
+\section{First steps: a signed letter of intent}
 
 So how can we design a digital currency?  
 
-At first, digital money sounds impossible.  If Alice can use a string
-of bits as money, how can we prevent Alice from using the same bit
-string over and over, thus minting an infinite supply of money for
+At first, digital currency sounds impossible.  If Alice can use a
+string of bits as money, how can we prevent Alice from using the same
+bit string over and over, thus minting an infinite supply of money for
 herself?  And how can we prevent Bob or someone else forging such
 strings of bits, effectively stealing from Alice?
 
 These are just two of the many problems that need to be overcome in
 order to use information as currency.
 
-Let's address one of these problems.  Let's find a way to prevent
-someone else forging such a string, and thus stealing from Alice.  To
-do this, Alice writes down the message "I, Alice, am giving Bob one
-Infocoin".  She then signs the message using a private cryptographic
-key, and announces the signed string of bits to the entire world.
+Now, at this point I could explain the entire Bitcoin protocol in one
+shot, up-front.  It'd be relatively straightforward for you to
+understand the mechanics of the protocol, and you could understand how
+it solves the problems described above.  But while you'd understand
+the mechanics of the protocol, you wouldn't understand in any deep way
+\emph{why} Bitcoin is designed the way it is.
 
-This achieves two things.  First, anyone in the world (including Bob)
-can then use Alice's public key to verify that Alice really did sign
-the message "I, Alice, am giving Bob one Infocoin".  This establishes
-that Alice truly intends to give Bob one Infocoin.
+For that reason, I'm instead going to build Bitcoin up in stages.
+I'll begin by explaining a very simple digital currency, based on
+ideas that are almost obvious.  We'll call that currency
+\emph{Infocoin}, to distinguish it from Bitcoin.  Of course, our first
+version of Infocoin will have many deficiencies!  We'll go through
+several iterations of Infocoin, with each iteration introducing one
+new idea.  This approach is slower than explaining Bitcoin in one
+shot, but helps build a deeper understanding of the full Bitcoin
+protocol.  In a sense we'll rediscover Bitcoin.
 
-Second, this gives Alice at least a limited protection from forgery,
-since only Alice has the private key used to sign the message.  Of
-course, once Alice has published her message it's possible for other
-people to duplicate the message, so in that sense forgery is possible.
-But before that initial act of publication, there's no way someone
-else can forge that bit string; the initial construction can only be
-done by Alice!  
+Alright, as a first step, let's address one of the problems I
+mentioned above: let's find a way that Alice can use a string of bits
+as (very primitive form of) money, without allowing anyone else to
+forge that string, and thus steal from Alice.  To do this, Alice
+writes down the message "I, Alice, am giving Bob one Infocoin".  She
+then digitally signs the message using a private cryptographic key,
+and announces the signed string of bits to the entire world.
+
+This isn't terribly impressive as a prototype for a digital currency!
+But it does achieve two things.  First, anyone in the world (including
+Bob) can then use Alice's public key to verify that Alice really did
+sign the message "I, Alice, am giving Bob one Infocoin".  This
+establishes that Alice truly intends to give Bob one Infocoin.
+
+Second, the procedure gives Alice at least some limited protection
+from forgery.  The reason is that only Alice has the private key used
+to sign the message.  Of course, once Alice has published her message
+it's possible for other people to duplicate the message, so in that
+sense forgery is possible.  But before that initial act of
+publication, there's no way someone else can forge that bit string.
 
 To put this in a slightly different way, suppose someone encounters
 the signed message ``I, Alice, am giving Bob one Infocoin''.  If they
-verify the signature, then they know that at some point Alice did sign
-that message.
+verify the signature, then they know that at some point Alice signed
+that message.  True, someone else might have since duplicated it, but
+the initial act of construction must have been by Alice; no-one else
+has Alice's private key, and so no-one else could have 
 
-XXX --- what's the digital money here?  It's just the message itself:
-the digitally signed ``XXX''.  This will remain true in more elaborate
-protocols as well --- the digital money will just be more and more
-elaborate messages (with a surrounding protocol for all parties to
-agree on the transaction).
+By the way, and just to be totally explicit, I should address the
+question: what's the digital money here?  Well, it's just the message
+itself: the ``I, Alice, am giving Bob one Infocoin'', digitally signed
+by Alice.  This will remain true in more elaborate protocols --- all
+our forms of digital money will be just more and more elaborate
+messages (with a surrounding protocol for all parties to agree on a
+transaction).
 
-\textbf{A note on analysing protocols such as Bitcoin:} Before we get
-into an analysis of this protocol, a word on how to think about
-cryptographic protocols.  Such protocols often have many problems --
-in the context of digital money, that means multiple ways in which
-people can cheat, forge money, steal money, and so on.  It's easy to
-become overwhelmed by all the problems, and to think that you need to
-look for a silver bullet solution which solves all the problems at
-once.  This makes it difficult to think clearly about the protocol.
-
-A better way to proceed is to concentrate on just one or two problems
-at a time, and to ignore all other issues.  That's what we'll do.  At
-each stage I'll identify just one or two problems, and then introduce
-one or two simple ideas that solve that problem or problems.  Then
-we'll do this over again, identifying a problem and a solution,
-repeating this pattern several times, as we gradually build up the
-protocol.
-
-As we go through this process you'll likely have many thoughts about
-(often glaring) holes in the protocol-of-the-moment.  You'll have to
-trust that I will eventually resolve all those problems!  To build
-confidence, I suggest keeping notes as you go -- if something's
-bugging you, then pause in your reading, and write down as clearly as
-posssible what's bugging you.  Don't worry about resolving the problem
-immediately, just keep a record.  When you finally understand the
-entire protocol, revisit your list, and see if the problem has been
-addressed.
-
-XXX - How to read crypto.  More generally, reading cryptography is
-difficult work.  You certainly can't read it quickly, likely a novel.
-But you can't even read it somewhat more slowly, as you might read a
-conventional technical document.  Cryptographic protocols tend to be a
-bit like puzzles, with interlocking parts put very carefully put
-together.  To really understand them you need to examine all those
-connections carefully, looking at them from many difficult angles, and
-gradually getting to the point that it's all in your head at once.
-That's tough work, but, as with a well-designed puzzle, there is also
-a beauty to it, once you get the entirety of the protocol inside your
-head, and understand how all the parts relate.
+That's version 1 of Infocoin.  It's got many problems, and it's also
+somewhat vague at the moment --- for example, I haven't addressed .
+Over the next few sections we will identify and address those
+problems, and also (again, gradually) make the vaguer elements
+precise.  But we should also keep carefully in mind our current wins:
+the protocol establishes that Alice truly intends to give Bob one
+Infocoin; and it offers Alice some limited protection from forgery.
 
 \section{Using serial numbers to make coins unique}
 
@@ -912,6 +887,49 @@ mining.
   XXX.}
 
 \end{document}
+
+
+
+\textbf{A note on analysing protocols such as Bitcoin:} Before we get
+into an analysis of this protocol, a word on how to think about
+cryptographic protocols.  Such protocols often have many problems --
+in the context of digital money, that means multiple ways in which
+people can cheat, forge money, steal money, and so on.  It's easy to
+become overwhelmed by all the problems, and to think that you need to
+look for a silver bullet solution which solves all the problems at
+once.  This makes it difficult to think clearly about the protocol.
+
+A better way to proceed is to concentrate on just one or two problems
+at a time, and to ignore all other issues.  That's what we'll do.  At
+each stage I'll identify just one or two problems, and then introduce
+one or two simple ideas that solve that problem or problems.  Then
+we'll do this over again, identifying a problem and a solution,
+repeating this pattern several times, as we gradually build up the
+protocol.
+
+As we go through this process you'll likely have many thoughts about
+(often glaring) holes in the protocol-of-the-moment.  You'll have to
+trust that I will eventually resolve all those problems!  To build
+confidence, I suggest keeping notes as you go -- if something's
+bugging you, then pause in your reading, and write down as clearly as
+posssible what's bugging you.  Don't worry about resolving the problem
+immediately, just keep a record.  When you finally understand the
+entire protocol, revisit your list, and see if the problem has been
+addressed.
+
+XXX - How to read crypto.  More generally, reading cryptography is
+difficult work.  You certainly can't read it quickly, likely a novel.
+But you can't even read it somewhat more slowly, as you might read a
+conventional technical document.  Cryptographic protocols tend to be a
+bit like puzzles, with interlocking parts put very carefully put
+together.  To really understand them you need to examine all those
+connections carefully, looking at them from many difficult angles, and
+gradually getting to the point that it's all in your head at once.
+That's tough work, but, as with a well-designed puzzle, there is also
+a beauty to it, once you get the entirety of the protocol inside your
+head, and understand how all the parts relate.
+
+
 
 
 What ideas do I want to add?
