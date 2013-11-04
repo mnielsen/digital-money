@@ -316,9 +316,9 @@ ideas that are almost obvious.  We'll call that currency
 \emph{Infocoin}, to distinguish it from Bitcoin.  Of course, our first
 version of Infocoin will have many deficiencies!  We'll go through
 several iterations of Infocoin, with each iteration introducing one
-new idea.  This approach is slower than explaining Bitcoin in one
-shot, but helps build a deeper understanding of the full Bitcoin
-protocol.  In a sense we'll rediscover Bitcoin.
+new idea.  This approach takes considerably longer than explaining
+Bitcoin in one shot, but the payoff is a deeper understanding of the
+full Bitcoin protocol.  In a sense we'll rediscover Bitcoin.
 
 Alright, as a first step, let's address one of the problems I
 mentioned above: let's find a way that Alice can use a string of bits
@@ -366,16 +366,14 @@ Infocoin; and it offers Alice some limited protection from forgery.
 
 \section{Using serial numbers to make coins unique}
 
-Alright, let's return to Protocol 0, the one where Alice simply
-digitally signs her intent to transfer an Infocoin to Bob.  A problem
-with this protocol is that Alice could keep sending Bob the same
-signed message over and over.  Suppose Alice sent the signed message
-"I, Alice, am giving Bob one Infocoin" ten times.  Does that mean
-Alice sent Bob ten \emph{different} Infocoins?  Was her message
-accidentally duplicated?  Worse, perhaps she was trying to trick Bob
-into believing that she had given him ten different Infocoins, when
-the message only proves to the world that she intends to transfer one
-Infocoin.
+A problem with the first version of Infoin is that Alice could keep
+sending Bob the same signed message over and over.  Suppose Alice
+sends the signed message "I, Alice, am giving Bob one Infocoin" ten
+times.  Does that mean Alice sent Bob ten \emph{different} Infocoins?
+Was her message accidentally duplicated?  Perhaps she was trying to
+trick Bob into believing that she had given him ten different
+Infocoins, when the message only proves to the world that she intends
+to transfer one Infocoin.
 
 What we'd like is a way of making Infocoins unique.  They need a label
 or serial number.  Alice would sign the message "I, Alice, am giving
@@ -385,12 +383,12 @@ serial number 8770431", and Bob (and everyone else) would know that
 that this was a \emph{different} Infocoin that was being transferred.
 
 I haven't yet said where Alice would get the serial numbers from.
-Should she just make them up out of thin air?  Obviously, that'd be
-convenient for her -- she'd have the capacity to print money!  And
-we'd still have the problem that there's nothing to prevent her from
-spending a coin with the same serial number twice.
+Should she just make them up?  Obviously, that'd be convenient for her
+-- she'd have the capacity to print money!  And we'd still have the
+problem that she could spend a coin with the same serial number twice,
+just by spending it with two different people.
 
-One way to solve this problem is to introduce a \emph{bank} which is
+One way to solve these problems is to introduce a \emph{bank} which is
 the ultimate source of Infocoins.  This bank provides serial numbers,
 keeps track of who has which Infocoins, and verifies that transactions
 really are legitimate, preventing Alice from making up serial numbers
@@ -399,35 +397,33 @@ of her own.
 In more detail, let's suppose Alice goes into the bank, and says "I
 want to withdraw one Infocoin from my account".  The bank reduces her
 account balance by one Infocoin, and gives her a new, never-before
-used serial number, let's say 1234567.
+used serial number, let's say 1234567.  Then, when Alice wants to
+transfer an Infocoin to Bob, she'd sign the message "I, Alice, am
+giving Bob one Infocoin, with serial number 1234567".  But Bob doesn't
+just accept the Infocoin.  Instead, he contacts the bank, and verifies
+that: (a) the Infocoin with that serial number belongs to Alice; and
+(b) Alice hasn't already spent the Infocoin.  If both those things are
+true, then Bob accepts the Infocoin, and the bank updates their
+records to show that the Infocoin with that serial number is now in
+Bob's possession, and no longer belongs to Alice.
 
-Then, when Alice wants to transfer an Infocoin to Bob, she'd sign the
-message "I, Alice, am giving Bob one Infocoin, with serial number
-1234567".  But Bob doesn't just accept the Infocoin.  Instead, he
-contacts the bank, and verifies that: (a) the Infocoin with that
-serial number belongs to Alice; and (b) Alice hasn't already spent the
-Infocoin.  If both those things are true, then Bob accepts the
-Infocoin, and the bank updates their records to show that the Infocoin
-with that serial number is now in Bob's possession, and no longer
-belongs to Alice.
+\section{Making everyone collectively the bank}
 
-\section{Getting rid of the bank}
-
-This last solution looks pretty good.  It's still got many problems --
+This last solution looks pretty good.  It's still got problems --
 problems like how to authenticate the identities of Alice, Bob and the
-bank -- but it doesn't seem like much of a stretch to believe that
-that with some further thought we could overcome those problems.
+bank -- but it doesn't seem like a stretch to believe that with some
+further work we could eliminate those problems.
 
 However, it turns out that we can do something much more ambitious.
 We can actually eliminate the bank from the protocol.  This changes
-the nature of the currency considerably, since a single organization
-is no longer in charge.  XXX --- Why should we care?  Should we care?
+the nature of the currency considerably.  It means that there is no
+longer a single organization in charge of the currency.
 
 The idea is to make it so \emph{everyone} is the bank.  In particular,
 we'll assume that everyone using Infocoin keeps a complete record of
-which Infocoins belong to which person.  You can think of this as
-being like a ledger showing all transactions.  We'll call this ledger
-the \emph{block chain}, since that's what the complete record will be
+which Infocoins belong to which person.  You can think of this as a
+ledger showing all transactions.  We'll call this ledger the
+\emph{block chain}, since that's what the complete record will be
 called in Bitcoin, once we get to it.
 
 Now, suppose Alice wants to transfer an Infocoin to Bob.  She signs
@@ -438,32 +434,33 @@ If that checks out then he can broadcast both Alice's message and his
 acceptance of the transaction to the entire network, and everyone will
 update their copy of the block chain.
 
-There is, however, a problem with this.  Suppose Alice wants to cheat
+We still have the ``where do serial number come from'' problem, but
+I'm going to defer that to later, in the discussion of Bitcoin.  A
+more significant problem is that this protocol allows Alice to cheat
 by double spending her Infocoin.  She sends the signed message ``I,
 Alice, am giving Bob one Infocoin, with serial number 1234567'' to
 Bob, and the message``I, Alice, am giving Charlie one Infocoin, with
-serial number 1234567'' to Charlie.  Both Bob and Charlie use their
-block chain to verify that the Infocoin is Alice's to spend.  In both
-cases it checks out, and they each broadcast their acceptance of the
-transaction (and Alice's signed messages).  How then should other
-people update their block chains?  Even if everyone can agree on a
-consistent way to update their block chains, so everyone agrees on who
-has which Infocoins, there is still the problem that either Bob or
-Charlie will be cheated.
+[the same] serial number 1234567'' to Charlie.  Both Bob and Charlie
+use their block chain to verify that the Infocoin is Alice's to spend.
+In both cases it checks out, and they each broadcast their acceptance
+of the transaction (and Alice's signed messages).  How then should
+other people update their block chains?  And even if everyone can
+agree on a consistent way to update their block chains, there is still
+the problem that either Bob or Charlie will be cheated.
 
-Now, at first this seems like it would be difficult for Alice to pull
-off.  After all, if Alice sends the message first to Bob, then Bob can
-quickly verify it, and then tell everyone else in the network
-(including Charlie) to update their block chain.  Once that has
-happened, Charlie would no longer be fooled by Alice. So there is only
-a narrow window of time in which Alice can double spend.  However,
-it's undesirable to have such a window of time.  Worse, there are
-things Alice could do to make that window broader.  She could, for
-example, look for times when Bob and Charlie are likely to have a lot
-of latency in communication, perhaps by doing internet traffic
-analysis, or maybe by deliberately trying to disrupt communications.
-If she can slow down communication even a little that makes her task
-of double spending significantly easier.
+Now, at first glance this seems like it would be difficult for Alice
+to pull off.  After all, if Alice sends the message first to Bob, then
+Bob can verify it, and tell everyone else in the network (including
+Charlie) to update their block chain.  Once that has happened, Charlie
+would no longer be fooled by Alice. So there is most likely only a
+brief period of time in which Alice can double spend.  However, it's
+obviously undesirable to have such a period of time.  Worse, there are
+things Alice could do to make that period longer.  She could, for
+example, use internet traffic analysis to find times when Bob and
+Charlie are likely to have a lot of latency in communication, or
+perhaps do something to deliberately disrupt their communications.  If
+she can slow communication even a little that makes her task of double
+spending significantly easier.
 
 How can we address the problem of double spending?  The obvious
 solution is that when Alice sends Bob an Infocoin, Bob shouldn't try
@@ -472,20 +469,19 @@ possible transaction to the entire network of Infocoin users, and ask
 them to help determine whether the transaction is legitimate.  If they
 collectively decide that the transaction is okay, then Bob can accept
 the Infocoin, and everyone will update their block chain
-appropriately.
+appropriately.  This type of protocol could help prevent double
+spending, since if Alice tries to spend her Infocoin with both Bob and
+Charlie, other people on the network will notice, and network users
+will tell both Bob and Charlie that there is a problem with the
+transaction, and the transaction shouldn't go through.
 
-That's a good high level description.  How would it work in detail?
-Our goal is to find a procedure that: (1) guarantees that the network
-can collectively resolve any ambiguity in the block chain; and (2) the
-resolution won't allow anyone to be cheated.
-
-Let's suppose Alice wants to give Bob an Infocoin.  As before, she
-signs the message "I, Alice, am giving Bob one Infocoin, with serial
-number 1234567", and gives the signed message to Bob.  Also as before,
-Bob does a basic sanity check, using his copy of the block chain to
-check that, indeed, the coin is Alice's to give.  But at that point
-things differ.  He doesn't just go ahead and accept the transaction at
-this point.  Instead, he broadcast Alice's message to the entire
+In more detail, let's suppose Alice wants to give Bob an Infocoin.  As
+before, she signs the message "I, Alice, am giving Bob one Infocoin,
+with serial number 1234567", and gives the signed message to Bob.
+Also as before, Bob does a sanity check, using his copy of the block
+chain to check that, indeed, the coin is Alice's to give.  But at that
+point the protocol is modified.  Bob doesn't just go ahead and accept
+the transaction.  Instead, he broadcast Alice's message to the entire
 network.  Other members of the network check to see whether Alice
 does, in fact, have that Infocoin to give Bob.  If so, then they
 broadcast out the message "Yes, Alice does have Infocoin 1234567, it
@@ -493,55 +489,54 @@ can now be transferred to Bob.''  Once enough people have broadcast
 that message, everyone updates their block chain to show that Infocoin
 1234567 now belongs to Bob, and the transaction is complete.
 
-This protocol helps prevent double spending, since if Alice tries to
-spend her Infocoin with both Bob and Charlie, other people on the
-network will notice, and network users will tell both Bob and Charlie
-that there is a problem with the transaction, and the transaction
-shouldn't go through.
-
-Note that this protocol is somewhat vague as I've explained it above.
-For instance, what does it mean to say ``once enough people have
-broadcast that message''?  What exactly does ``enough'' mean?  It
-can't mean everyone in the network, since we don't \emph{a priori}
-even know \emph{who} is in the network.  For the same reason, it can't
-mean some fixed fraction of users in the network.  How does everyone
-agree on this?  There are many ways we could try to answer these
-questions.  I'm going to leave this a little vague for now.  In the
-next section I'm going to point out a serious problem with this
-approach.  We'll fix the problem, and in the process make the ideas
-above both better, and also more specific.
-
+This protocol is somewhat imprecise as I've just explained it.  For
+instance, what does it mean to say ``once enough people have broadcast
+that message''?  What does ``enough'' mean here?  It can't mean
+everyone in the network, since we don't \emph{a priori} know who is in
+the network.  For the same reason, it can't even mean some fixed
+fraction of users in the network.  I'm not going to try to make this
+precise right now.  Instead, in the next section I'll point out a
+serious problem with the approach as described.  We'll fix the
+problem, and in the process make the ideas above both better, and also
+more specific.
 
 \section{Proof-of-work}
 
-A problem with this protocol has to do with the honesty of network
-users.  Suppose Alice wants to double spend.  She could use an
-automated system to set up a large number of separate identities on
-the Infocoin network.  Those users would all be sock puppets for
-Alice.  She then tries to double spend the same Infocoin with both Bob
-and Charlie.  When Bob and Charlie ask the network to validate their
-respective transactions, Alice's sock puppet identities swamp the
-network, announcing that they've validated both transations.
+Suppose Alice wants to double spend in the protocol I've just
+described.  She could try to do this by taking over the Infocoin
+network.  Let's suppose she uses an automated system to set up a large
+number, let's say a billion, of separate identities on the Infocoin
+network.  As before, she tries to double spend the same Infocoin with
+both Bob and Charlie.  But when Bob and Charlie ask the network to
+validate their respective transactions, Alice's sock puppet identities
+swamp the network, announcing to Bob that they've validated his
+transaction, and to Charlie that they've validated his transaction.
 
-How can we avoid this type of problem using an idea known as
-\emph{proof-of-work}.  The idea is that other users on the network
-will have to do some work -- basically, they have to solve a difficult
-computational puzzle -- to validate a transaction.  This sounds crazy.
-Why make it hard to help in the validation process?  But it turns out
-to have a really good result: it makes it very unlikely that anyone
-will try to impersonate a million people on the network, since they'd
-need to solve a million puzzles, and that will cost them more than
-it's worth
+There's a clever way of avoiding this problem, using an idea known as
+\emph{proof-of-work}.  The idea is counterintuitive and somewhat
+complex: the basic idea is to (artificially) make it \emph{hard} for
+network users to validate transactions, but to \emph{reward} them for
+doing so.  The reward means that people on the network will still try
+to help validate transactions, even though that's now quite a
+difficult process.  The benefit of making it difficult to validate
+transactions is that it is very unlikely that anyone will try to
+impersonate a billion people on the network, since they'd need to
+solve a million puzzles, and that will cost them more than it's worth.
 
-In more detail, here's how proof-of-work works.
+XXX --- If that's really true, then why not both (a) participate in
+the mining (and get the reward), and (b) try to cheat?  
+
+That's the gist.  But to really understand proof-of-work, we need to
+go through the details.
 
 Suppose Alice broadcasts to the network the news that "I, Alice, am
 giving Bob one Infocoin, with serial number 1234567".  
 
-As other people hear the message, they add it to a queue of pending
-transactions that they've been told about, but which haven't yet been
-approved by the network.  For instance, another network user named
-David might have the following queue of pending transactions:
+As other people on the network hear the message, they add it to a
+queue of pending transactions that they've been told about, but which
+haven't yet been approved by the network.  For instance, another
+network user named David might have the following queue of pending
+transactions:
 
 I, Tom, am giving Sue one Infocoin, with serial number 1201174.
 
@@ -551,31 +546,65 @@ I, Alice, am giving Bob one Infocoin, with serial number 1234567.
 
 David checks his ledger, and can see that each transaction is valid.
 He would like to help out by broadcasting the validity to the entire
-network.  But, unfortunately, the rest of the network doesn't know
-whether or not to trust David.
+network.  
 
-So here's the puzzle David has to solve.  He starts with his entire
-list of pending transactions.  Let's give that list a name, we'll call
-it $l$.  Then he appends to that list $l$ a number of his choice,
-let's denote it $x$, and then hashes the combination $l, x$ to produce
-a hash value:
+However, he can't just do that.  Instead, as part of the validation
+protocol, David has to solve a hard computational puzzle.  Without the
+solution to that puzzle, the network won't accept his validation of
+the transaction.  
+
+What puzzle does David need to solve?  To explain that, let $h$ be a
+fixed hash function known by everyone in the network --- it's built
+into the protocol.  Bitcoin uses the well-known
+\link{https://en.wikipedia.org/wiki/SHA-2}{SHA-256} hash function.
+Let's label David's queue of pending transactions with the label $l$,
+just so it's got a name we can refer to.  The puzzle David has to
+solve --- the proof-of-work --- is to find a number $x$ (called the
+\emph{nonce}) such that when we append $x$ to $l$ and hash the
+combination (output is in hexadecimal),
 \begin{eqnarray}
-h(l, x) = XXX
+  h(lx) = \mbox{1312af178c...}
 \end{eqnarray}
-The puzzle David has to solve -- the proof-of-work -- is to find a
-number $x$ so that the output hash ends with a long string of zeroes:
+the output hash begins with a string containing many zeroes.  In the
+example above, drawn from the
+\link{https://en.bitcoin.it/wiki/Proof_of_work}{Bitcoin wiki}, we've
+used $l = $ ``Hello, world!'', i.e., not a genuine list of
+transactions, just a string used for illustrative purposes, and a
+candidate nonce, $x = 0$.  This gives, in full:
+\begin{eqnarray}
+  h("Hello, world!0") = 
+  \mbox{1312af178c253f84028d480a6adc1e25e81caa44c749ec81976192e2ec934c64}
+\end{eqnarray}
+This is a failed attempt to find the nonce, since the output doesn't
+begin with a long string of zeroes.  Trying $x = 1$ doesn't work much
+better:
+\begin{eqnarray}
+h("Hello, world!1") = \mbox{e9afc424b79e4f6ab42d99c81156d3a17228d6e1eef4139be78e948a9332a7d8}
+\end{eqnarray}
+You can keep trying different values for the nonce.  Finally, at $x =
+4250$ we obtain:
+\begin{eqnarray}
+  h("Hello, world!4250") = \mbox{0000c3af42fc31103f1fdc0151fa747ff87349a4714df7cc52ea464e12dcd4e9}
+\end{eqnarray}
+This nonce gives us a string of four zeroes in the output of the hash.
 
-XXX
+What makes this puzzle hard to solve is the fact that the output from
+a (good) cryptographic hash function behaves like a random number:
+change the input, even a tiny bit, and the output from the hash
+function changes completely, in a way that's very hard to predict.  So
+if we want the output hash value to begin with 10 zeroes, say, then
+David will need to try something like $16^{10} \approx 10^{12}$
+different values for $x$ before he finds a suitable nonce.  That's
+actually a pretty challenging task, requiring lots of computational
+power.
 
-This is hard to do.  It's hard because the output from a (good)
-cryptographic hash function behaves like a random number: change the
-input, even a tiny bit, and the output from the hash function changes
-completely, in a way that's very hard to predict.  So if we want the
-output hash value to finish with 10 zeroes, say, then David will
-need to try something like $16^{10} \approx 10^{12}$ different values
-for $x$ before he 
+Obviously, it's possible to make this puzzle more or less difficult to
+solve by requring fewer or more zeroes in the output from the hash
+function.  I'll explain later how the Bitcoin protocol automatically
+adjusts this difficulty.
 
-If David should happen to find such an $x$ then (celebration!)  he
+Alright, let's suppose David is lucky and finds a suitable nonce, $x$.
+Celebration!  (He'll be rewarded as described below).  He then
 broadcasts the list of transactions he's approving to the network,
 together with the value for $x$.  Other participants in the Infocoin
 network can verify that $x$ is a valid solution to the proof-of-work
@@ -584,60 +613,59 @@ transactions.
 
 In this scheme, we're basically having a competition to approve
 transactions.  Each entry in the competition costs a little bit of
-computing power.  If a large number of people are entering the
-competition, then Alice has only a small chance to corrupt the
-process, unless she expends a huge amount of computing resources.
-That's likely to cost more than it's worth to her to double spend,
-unless she's double spending a large number of Infocoins.
-
-XXX --- called a \emph{nonce}.  
+computing power.  Provided a large number of people are entering the
+competition, then a dishonest entrant, Alice, has only a small chance
+to corrupt the process, unless she expends a huge amount of computing
+resources.  That's likely to cost more than it's worth to her to
+double spend, unless she's double spending a large number of
+Infocoins.
 
 \section{Reward for work, and the origin of Infocoins}
 
-A problem with proof-for-work is that while it's all very well to ask
-network users such as David to work hard to validate transactions, why
-would they bother to do so, expending computational power that costs
-them money, merely to help validate other people's transactions?  And
-if network users such as David are not willing to expend that power,
-then the whole system falls apart.
+As I mentioned above, in order for proof-for-work to work well,
+network users such as David need to be given an incentive to help
+validate transactions.  If they're not, then they have no reason to
+expend valuable computational power, merely to help validate other
+people's transactions.  And if network users such as David are not
+willing to expend that power, then the whole system falls apart.
 
-The solution to this problem is to reward the people who help validate
-transactions.  In particular, suppose we credit whoever validates a
-set of transactions with some Infocoins.  Provided the Infocoin reward
-is large enough that gives them an incentive to participate in
-validation.  In Bitcoin, this validation process is called
-\emph{mining}, since it can result in 
+The solution to this problem is to reward people who help validate
+transactions.  In particular, suppose we credit whoever successfully
+validates a block of transactions by crediting them with some
+Infocoins.  Provided the Infocoin reward is large enough that will
+give them an incentive to participate in validation.  In Bitcoin, this
+validation process is called \emph{mining}.
 
 Of course, this gives rise to many questions.  How much reward is
-enough to persuade people to participate in the mining?  How does the
-change in supply of Infocoins affect the Infocoin economy?  Does
-Infocoin mining end up in concentrated in the hands of a few, or many?
-If it's just a few, doesn't that endanger the security of the system?
-We'll look at these questions below in the context of Bitcoin.
+enough to persuade people to mine?  How does the change in supply of
+Infocoins affect the Infocoin economy?  Does Infocoin mining end up in
+concentrated in the hands of a few, or many?  If it's just a few,
+doesn't that endanger the security of the system?  We'll look at these
+questions below in the context of Bitcoin.
 
 \section{Bitcoin}
 
 Alright, we've now understood the main ideas behind BitCoin.  Let's
 move away from Infocoin, and describe the actual BitCoin protocol.
 
-You install a wallet program on your computer.  Just to give you a
-sense of what this means, here's a screenshot of a wallet program
-called \link{XXX}{Multbit}.  You can see the Bitcoin balance -- a
-measly 2 dollars and 18 cents -- and a recent transaction, depositing
-that 2 dollars and 18 cents:
+You install a wallet program on your computer.  To give you a sense of
+what that means, here's a screenshot of a wallet program called
+\link{https://multibit.org/}{Multbit}.  You can see the Bitcoin
+balance -- a measly 2 dollars and 18 cents -- and a recent
+transaction, depositing that 2 dollars and 18 cents:
 % 
 \img{images/wallet_transaction}{400px}
 %
 Suppose you're a merchant who has set up an online store, and you've
-decided to tell allow people to pay using Bitcoin.  What you do is
-tell your wallet to generate a \emph{Bitcoin address}.  What it does
-is generates a public / private key pair, and then it generates your
-Bitcoin address, which is just a hashed version of the public key:
+decided to allow people to pay using Bitcoin.  What you do is tell
+your wallet program to generate a \emph{Bitcoin address}.  To do this,
+it first generates a public / private key pair, and then it hashes the
+public key to form your Bitcoin address:
 %
 \img{images/bitcoin_address}{400px}
 %
-You then send your Bitcoin address to the person who wants to send you
-Bitcoins.  You could do this in email, or even put it up publicly on a
+You then send your Bitcoin address to the person who wants to buy from
+you.  You could do this in email, or even put it up publicly on a
 webpage.  This is quite safe -- after all, it's a hash of your public
 key, which is intended to be known by the world, anyway.  (I'll return
 later to the question of why we hash the public key to obtain the
@@ -649,8 +677,7 @@ The person who is going to pay you then generates a
   transaction} transferring $0.31900000$ bitcoins.  I've added line
 numbers, for ease of reference in the explanation below, but otherwise
 this all the data in the transaction.
-
-\begin{verbatim} 
+\begin{Verbatim}[fontsize=\small]
 1.  {"hash":"7c402505be883276b833d57168a048cfdf306a926484c0b58930f53d89d036f9",
 2.  "ver":1,
 3.  "vin_sz":1,
@@ -665,7 +692,7 @@ this all the data in the transaction.
 12. "out":[
 13.   {"value":"0.31900000",
 14.    "scriptPubKey":"OP_DUP OP_HASH160 a7db6ff121871c65a8924b8e40f160d385515ad7 OP_EQUALVERIFY OP_CHECKSIG"}]}
-\end{verbatim}
+\end{Verbatim}
 
 Let's go through this, line by line.
 
@@ -702,6 +729,13 @@ particular, line 13 tells us the value of the output, 0.39000000
 bitcoins, or 39,000,000 satoshis.  Line 14 is somewhat complicated.
 The main thing, however, is that the long string "a7db6ff12..." is the
 Bitcoin address of the intended recipient of the funds.
+
+ZZZ
+
+You can now see, by the way, how Bitcoin addresses the serial number
+issue.
+
+\end{document}
 
 \section{Transactions with multiple inputs and outputs}
 
@@ -743,7 +777,7 @@ transaction</a>.  I've added line numbers, for ease of reference in
 the explanation below, but otherwise this all the data in the
 transaction.
 
-<pre>
+\begin{Verbatim}[fontsize=\small]
 1. {"hash":"99383066a5140b35b93e8f84ef1d40fd720cc201d2aa51915b6c33616587b94f",
 2. "ver":1,
 3. "vin_sz":3,
@@ -768,7 +802,7 @@ transaction.
 22.      "scriptPubKey":"OP_DUP OP_HASH160 e8c306229529009d596689cb9212d6519cf6de8a OP_EQUALVERIFY OP_CHECKSIG"},
 23.    {"value":"4.00000000",
 24.      "scriptPubKey":"OP_DUP OP_HASH160 d644e36b9b295b3a1fa6ca2f816ba1f9340f4806 OP_EQUALVERIFY OP_CHECKSIG"}]}
-</pre>
+\end{Verbatim}
 
 Let's go through this, line by line.
 
@@ -781,10 +815,10 @@ protocol.
 Lines 3 and 4 tell us that the transaction has three inputs and two
 outputs, respectively.
 
-Line 5 is a detail.  It contains the value for <code>lock_time</code>,
-which can be used to control when a transaction is finalized.  In this
-case, as for most transactions today, the <code>lock_time</code> is
-set to 0, which means the transaction is finalized immediately.
+Line 5 is a detail.  It contains the value for \verb|lock_time|, which
+can be used to control when a transaction is finalized.  In this case,
+as for most transactions today, the <code>lock_time</code> is set to
+0, which means the transaction is finalized immediately.
 
 Line 6 tells us the size of the transaction.
 
@@ -836,6 +870,10 @@ Change.
 
 \section{Oddities of Bitcoin}
 
+
+Security.  How secure is it, really?  
+
+
 Bitcoin has several oddities.
 
 One oddity is the use of addresses.  Why not use the public key as the
@@ -879,7 +917,9 @@ mining.
 
 
 
-\section{}
+\section{How much should care about getting rid of the bank?}
+
+XXX --- Why should we care?  Should we care?
 
 
 \emph{If you enjoyed this essay, you may like to follow \link{XXX}{my
