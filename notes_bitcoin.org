@@ -1179,6 +1179,30 @@ an output is considered a transaction fee; whoever generates the block
 will get it.''
 
 Bitcoin currently creates two different scriptSig/scriptPubKey pairs.
+** Scripting (from the Bitcoin wiki)
+
+https://en.bitcoin.it/wiki/Script
+
+Based on Forth.
+
+Has a stack.
+
+Processed from left to right.
+
+Not Turing-complete, with no loops allowed.
+
+Scripting gives us a flexible way of deciding when to allow the
+spending of transferred Bitcoins.  It could be time-delayed, it could
+require multiple private keys, it could require no keys at all
+
+Scripts come in two parts, one part associated with the input, the other with the output.
+
+Transaction is valid if: (a) combined script parses; (b) the top stack
+item is non-zero.
+
+The stacks hold byte vectors.
+
+
 ** Szabo, "The Idea of Smart Contracts" (1997)
 
 http://szabo.best.vwh.net/idea.html

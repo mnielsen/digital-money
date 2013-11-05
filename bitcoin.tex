@@ -1,5 +1,5 @@
 %
-% 7658
+% 8105
 %
 \documentclass[12pt]{book}
 
@@ -643,6 +643,9 @@ concentrated in the hands of a few, or many?  If it's just a few,
 doesn't that endanger the security of the system?  We'll look at these
 questions below in the context of Bitcoin.
 
+XXX --- I haven't emphasized enough the concept of blocks.  Or the
+fact that the block chain is linearly ordered.
+
 \section{Bitcoin}
 
 Alright, we've now understood the main ideas behind BitCoin.  Let's
@@ -665,11 +668,11 @@ public key to form your Bitcoin address:
 \img{images/bitcoin_address}{400px}
 %
 You then send your Bitcoin address to the person who wants to buy from
-you.  You could do this in email, or even put it up publicly on a
-webpage.  This is quite safe -- after all, it's a hash of your public
-key, which is intended to be known by the world, anyway.  (I'll return
-later to the question of why we hash the public key to obtain the
-Bitcoin address.)
+you.  You could do this in email, or even put the address up publicly
+on a webpage.  This is safe, since the address is merely a hash of
+your public key, which is intended to be known by the world anyway.
+(I'll return later to the question of why the Bitcoin address is a
+hash, and not just the public key.)
 
 The person who is going to pay you then generates a
 \emph{transaction}.  Let's take a look at the raw data from an
@@ -724,58 +727,79 @@ Line 11 contains the signature, followed by a space, and then the
 public key of the person sending the money.  Note that the signature
 is for the data in lines 8 through 10. 
 
+One thing to note about the input is that there's nothing explicitly
+specifying how many bitcoins from the previous transaction should be
+spent in this transaction.  In fact, all the bitcoins from the
+previous transaction are.  So, for example, if the earlier transaction
+had 2 bitcoins output, then 2 bitcoins will be spent in this
+transaction.  This is obviously inconvenient --- like trying to buy
+bread with a 20 dollar note, and not being able to break it down.  The
+solution, of course, is for the recipient to provide change.  This can
+easily be done using transactions with multiple inputs and outputs,
+which we'll discuss in the next section.
+
 Lines 12 through 14 define the output from the transaction.  In
 particular, line 13 tells us the value of the output, 0.39000000
-bitcoins, or 39,000,000 satoshis.  Line 14 is somewhat complicated.
-The main thing, however, is that the long string "a7db6ff12..." is the
-Bitcoin address of the intended recipient of the funds.
+bitcoins.  Line 14 is somewhat complicated.  The main thing to note is
+that the long string "a7db6ff12..." is the Bitcoin address of the
+intended recipient of the funds.  In fact, Line 14 is actually an
+expression in Bitcoin's scripting language, of which more soon.
 
-ZZZ
+You can now see, by the way, how Bitcoin addresses the question I
+raised earlier: where do Bitcoin serial numbers come from?  In fact,
+the role of the serial number is played by transaction hashes.  In the
+transaction above, for example, the recipient is receiving 0.39
+Bitcoins, which come out of the first output of an earlier transaction
+with hash 2007aec728$\ldots$ (line 9).  If you go and look in the
+block chain for that transaction, you'd see that its output comes from
+a still earlier transaction.  And so on.  
 
-You can now see, by the way, how Bitcoin addresses the serial number
-issue.
+In fact, it's possible to keep following the chain of transactions.
+Ultimately, of course, this must terminate.  This can happen in one of
+two ways.  The first possibilitity is that you'll arrive at the very
+first Bitcoin transaction, contained in the so-called
+\link{https://en.bitcoin.it/wiki/Genesis_block}{Genesis block}.  This
+is a special transaction, having no inputs, but a 50 Bitcoin output.
+In other words, this transaction establishes an initial money supply.
+The Genesis block is treated separately by Bitcoin clients, so
 
-\end{document}
+The second possibility is that you'll arrive at a so-called coinbase
+transaction.  With the exception of the Genesis block, every block of
+transactions in the block chain starts with a special coinbase
+transaction.  This is the transaction rewarding the miner who
+validated that block of transactions.  It uses a similar but not
+identical format to the transaction above.  I won't go through it in
+detail, but if you want to see an example, see
+\link{http://blockexplorer.com/rawtx/c3facb1e90fdbaf0ee59e342a00e1c82588af138784fabad7398eb9dab3a0e5a}{here}.
+
+There are two clever things about using transaction hashes instead of
+serial numbers.  First, in Bitcoin there's not really any separate,
+persistent ``coins'' at all, just a long series of transactions in the
+block chain.  It's a clever idea to realize that you don't need
+persistent coins, and can just get by with a ledger of transactions.
+Second, by operating in this way we remove the need for any central
+authority issuing serial numbers.  Instead, the serial numbers can be
+self-generated, merely by hashing the transaction.
+
+XXX --- I need to talk about at what level of detail I'm going to
+specify things.
+
+XXX --- I need to explain satoshis
 
 \section{Transactions with multiple inputs and outputs}
 
-I described above how a transaction with just a single input and a
-single output works.
+In the last section I described how a transaction with just a single
+input and a single output works.
 
 In practice, it's often extremely convenient to create Bitcoin
 transactions with multiple inputs or multiple outputs.
 
-For example, suppose I want to send you else 150 satoshis.  They do so
-by spending money from a previous transaction in which they received
-200 satoshis.  Of course, they don't want to send the entire 200
-satoshis to the other person.  The solution is to send the other
-person 150 satoshis, and to send one of their own Bitcoin addresses 50
-satoshis.  Those 50 satoshis are known as <em>change</em>.  Of course,
-it differs a little from ordinary change, since change is what you pay
-yourself.
-
-
-
-
-The second output is defined lines 23 and 24, with a similar format to
-the first output.
-
-The sum of all the inputs must be equal to the sum of all the outputs.
-
-If not...XXX.  Transaction fee.
-
-
-We can visualize the entire transaction content as follows:
-
-XXX
-
-
-
-Here's the raw data from an <a
-href="http://blockexplorer.com/tx/99383066a5140b35b93e8f84ef1d40fd720cc201d2aa51915b6c33616587b94f">actual
-transaction</a>.  I've added line numbers, for ease of reference in
-the explanation below, but otherwise this all the data in the
-transaction.
+I'll take below about why this can be useful.  But it's actually
+pretty easy to understand the details of how such a transaction works.
+Here's the raw data from an
+\link{http://blockexplorer.com/tx/99383066a5140b35b93e8f84ef1d40fd720cc201d2aa51915b6c33616587b94f}{actual
+  transaction}.  I've added line numbers, for ease of reference in the
+explanation below, but otherwise this all the data in the transaction.
 
 \begin{Verbatim}[fontsize=\small]
 1. {"hash":"99383066a5140b35b93e8f84ef1d40fd720cc201d2aa51915b6c33616587b94f",
@@ -804,7 +828,9 @@ transaction.
 24.      "scriptPubKey":"OP_DUP OP_HASH160 d644e36b9b295b3a1fa6ca2f816ba1f9340f4806 OP_EQUALVERIFY OP_CHECKSIG"}]}
 \end{Verbatim}
 
-Let's go through this, line by line.
+Let's go through this, line by line.  Many of the lines are similar to
+the single-input-single-output transaction, so I will only explain
+those briefly.
 
 Line 1 contains the hash of the remainder of the transaction.  This is
 used as an identifier for the transaction.
@@ -815,12 +841,11 @@ protocol.
 Lines 3 and 4 tell us that the transaction has three inputs and two
 outputs, respectively.
 
-Line 5 is a detail.  It contains the value for \verb|lock_time|, which
-can be used to control when a transaction is finalized.  In this case,
-as for most transactions today, the <code>lock_time</code> is set to
-0, which means the transaction is finalized immediately.
+Line 5 contains the \verb|lock_time|.  As in the
+single-input-single-output case this is set to 0, which means the
+transaction is finalized immediately.
 
-Line 6 tells us the size of the transaction.
+Line 6 tells us the size of the transaction in bytes.
 
 Lines 7 through 19 define a list of the inputs to the transaction.
 These are outputs from previous Bitcoin transactions.
@@ -828,10 +853,10 @@ These are outputs from previous Bitcoin transactions.
 The first input is defined in lines 8 through 11.  
 
 In particular, lines 8 through 10 tell us that the input is to be
-taken from the <code>n=0</code>th output from an earlier transaction,
-with the given <code>hash</code>.  Line 11 contains the signature,
-followed by a space, and then the public key of the person sending the
-money.  Note that the signature is for the data in lines 8 through 10.
+taken from the $n=0$th output from an earlier transaction, with the
+given \verb|hash|.  Line 11 contains the signature, followed by a
+space, and then the public key of the person sending the money.  Note
+that the signature is for the data in lines 8 through 10.
 
 Lines 12 through 15 define the second input, with a similar format to
 lines 8 through 11.  And lines 16 through 19 define the third input.
@@ -840,46 +865,45 @@ Lines 20 through 24 define a list containing the two outputs from the
 transaction.
 
 The first output is defined in lines 21 and 22.  Line 21 tells us the
-value of the output, 0.01068000 bitcoins, or 1,068,000 satoshis.  Line
-22 is somewhat complicated.  The main thing, however, is that the long
-string "e8c30622..." is the Bitcoin address of the 
+value of the output, 0.01068000 bitcoins.  As before, line 22 is an
+expression in Bitcoin's scripting language.  The main thing to take
+away here is that the string "e8c30622..." is the Bitcoin address of
+the intended recipient of the funds.
 
 The second output is defined lines 23 and 24, with a similar format to
 the first output.
 
-The sum of all the inputs must be equal to the sum of all the outputs.
+We can now see how the idea of change is implemented in Bitcoin.
+Suppose, for example that I want to send you 150 satoshis.  I can do
+so by spending spending money from a previous transaction in which I
+received 200 satoshis.  Of course, I don't want to send you the entire
+200 satoshis.  The solution is to send you 150 satoshis, and to send
+one of my own Bitcoin addresses 50 satoshis.  Those 50 satoshis are
+the change.  Of course, it differs a little from ordinary change,
+since change is what you pay yourself.  But the net effect is the
+same.
 
-If not...XXX.  Transaction fee.
+As a general principle, the sum of all the inputs in a transaction
+must be at least as much as the sum of all the outputs.  This holds
+for all Bitcoin transactions, except in the Genesis block, and in
+coinbase transactions, both of which add to the overall Bitcoin
+supply.
 
-Suppose someone wants to send someone else 150 satoshis.  They do so
-by spending money from a previous transaction in which they received
-200 satoshis.  Of course, they don't want to send the entire 200
-satoshis to the other person.  The solution is to send the other
-person 150 satoshis, and to send one of their own Bitcoin addresses 50
-satoshis.  Those 50 satoshis are known as <em>change</em>.  Of course,
-it differs a little from ordinary change, since change is what you pay
-yourself.
+If the inputs sum up to more than the outputs, then the excess is used
+as a \emph{transaction fee}.  This is paid to whichever miner
+successfully validates the block which the current transaction is a
+part of.
 
-We can visualize the entire transaction content as follows:
+We've almost completed a basic description of the main ideas behind
+Bitcoin.  However, there are a few loose ends to be tied up ---
+questions you might reasonably have about the protocol as described.
+So lets address those.
 
-XXX
+\section{Why not use a public key as a Bitcoin address, rather than a
+  hash of the public key?}
 
-
-
-Change.
-
-\section{Oddities of Bitcoin}
-
-
-Security.  How secure is it, really?  
-
-
-Bitcoin has several oddities.
-
-One oddity is the use of addresses.  Why not use the public key as the
-address, rather than a hash of the public key?
-
-This seems to be a fairly arbitrary design decision.  
+This is a real oddity.  So far as I have been able to determine it
+seems to be an arbitrary design decision.
 
 One seemingly plausible explanation is that it's to add extra
 security.  Even if the public key cryptosystem were broken, having
@@ -893,14 +917,14 @@ sign the transaction.  Once you've revealed your public key, people
 can take the hash to recover your address, and to see what previous
 transactions it's participated in, as a recipient of funds.
 
-In other words, your public key is kept secret
-
+In other words, your public key is kept secret only up to the point
+where you actually spend the money you've received.
 
 There is one scenario in which the use of addresses makes sense.
 Suppose that the public key cryptography apocalypse occurs -- someone
 discovers how to crack the public key cryptosystem.  Then everyone
 whose public keys are known would immediately have their account
-entirely compromised.  
+compromised.
 
 Now, suppose that people never used the same Bitcoin address twice to
 receive funds.
@@ -909,11 +933,50 @@ So provided you never use the same Bitcoin address twice
 
 It's pretty common advice to  
 
-A second oddity is that the transaction as a whole isn't signed.  XXX; TRANSACTION MALLEABILITY.
+\section{Why isn't the transaction as a whole signed?}
+
+
+That completes a basic description of the main ideas behind Bitcoin.
+Of course, there are many omitted details --- this isn't a formal
+specification.  But I have described all the main ideas behind the
+most common use cases for Bitcoin.
+
+\section{Conclusion}
+
+While the rules of Bitcoin are simple and easy to understand, that
+doesn't mean that it's easy to understand all the consequences of the
+rules.  There is vastly more that could be said about Bitcoin, and
+I'll have several several future posts I'll investigate some of these
+issues.
+
+For now, though, I want to address just a few final issues.  Two are
+oddities in the 
+
+
+\textbf{Is Bitcoin secure?}  It's difficult to say.  Bitcoin is a
+relatively new protocol, and it's possible that scrutiny may find Many
+of the key underlying technologies are relatively well tested --- the
+hash functions used
+
+\textbf{How anonymous is Bitcoin?} Many people claim that Bitcoin can
+be used anonymously.  This claim has led to the formation of
+marketplaces such as XXX, which specialize in illegal goods.  However,
+it would it seems extremely unlikely that Bitcoin offers anything like
+anonymity.  The block chain is public, meaning that it's possible for
+anyone to see every Bitcoin transaction ever.  In that sense, Bitcoin
+is the most open and transparent financial instrument the world has
+ever seen.  Computer scientists have done a
+\link{http://scholar.google.com/scholar?q=de-anonymization}{lot of
+  work} figuring out how to de-anonymize social networks.
+
+
+
 
 
 Note that not everyone in the Bitcoin network actually participates in
 mining.
+
+\end{document}
 
 
 
@@ -980,24 +1043,6 @@ to the previous transaction.
 
 Modifications: not everyone needs to have a copy of the block chain.
 
-
-<h3>Why have a chain?</h3>
-
-<div class="section">
-
-Why have a chain?
-
-
-Why point 
-
-To approve the 
-
-In particular, they actually have to solve a difficult puzzle before
-they can approve a transaction.
-
-
-
-when a potential transaction is broadcast
 
 
 
