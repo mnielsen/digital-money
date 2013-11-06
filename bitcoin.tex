@@ -258,12 +258,16 @@ limits your understanding.  Understanding the details of the Bitcoin
 protocol opens up otherwise inaccessible vistas.  It makes it possible
 to understand how Bitcoin can be used to create new types of financial
 instrument, and how, in turn, those financial instruments can be used
-to enable new forms of collective human behaviour.  Talk about fun!
+to enable new markets and new forms of collective human behaviour.
+Talk about fun!
 
 %
 % What you need as background
 %
-To understand this post, you need to be comfortable with
+I'll describe how Bitcoin can be used to create new types of financial
+instrument in future posts.  This post, however, is about the
+nuts-and-bolts of Bitcoin.  To understand the post, you need to be
+comfortable with
 \link{http://en.wikipedia.org/wiki/Public-key_cryptography}{public key
   cryptography}, and with the closely related idea of
 \link{https://en.wikipedia.org/wiki/Digital_signature}{digital
@@ -282,60 +286,66 @@ Bitcoin a currency, not a way of sending secret messages?  But the
 problems that Bitcoin needs to solve are largely about securing
 transactions -- making sure people can't steal from one another, or
 impersonate one another, and so on.  In the world of atoms we achieve
-security with devices such as locks, safes, and bank vaults.  In the
-world of bits we achieve this kind of security with cryptography.  And
-that's why Bitcoin is at heart a cryptographic protocol.
+security with devices such as locks, safes, signatures, and bank
+vaults.  In the world of bits we achieve this kind of security with
+cryptography.  And that's why Bitcoin is at heart a cryptographic
+protocol.
 
 My strategy in the article is to build Bitcoin up in stages.  I'll
 begin by explaining a very simple digital currency, based on ideas
 that are almost obvious.  We'll call that currency \emph{Infocoin}, to
 distinguish it from Bitcoin.  Of course, our first version of Infocoin
 will have many deficiencies, and so we'll go through several
-iterations, with each iteration introducing one new idea. Eventually,
-we'll arrive at the full Bitcoin protocol.  We will have reinvented
-Bitcoin!
+iterations of Infocoin, with each iteration introducing one simple new
+idea. After several iterations, we'll arrive at the full Bitcoin
+protocol.  We will have reinvented Bitcoin!
 
 This approach to explanation takes more time than if I explained the
-entire Bitcoin protocol in one shot.  But while you could understand
-the mechanics of Bitcoin through such a one-shot explanation, it would
-be difficult to understand in any deep way \emph{why} Bitcoin is
-designed the way it is.  The advantage of the slower iterative
-approach is that you'll have a sharp understanding of why each element
-of Bitcoin is the way it is.
+entire Bitcoin protocol in one shot.  But while you can understand the
+mechanics of Bitcoin through such a one-shot explanation, it's
+difficult to understand \emph{why} Bitcoin is designed the way it is.
+The advantage of the slower iterative approach is that it gives us a
+really sharp understanding of why each element of Bitcoin is the way
+it is.
 
 \section{First steps: a signed letter of intent}
 
 So how can we design a digital currency?  
 
-On the face of it, a digital currency sounds impossible.  If Alice can
-use a string of bits as money, how can we prevent Alice from using the
-same bit string over and over, thus minting for herself an infinite
-supply of money?  And how can we prevent Bob or someone else forging
-such strings of bits, effectively stealing from Alice?
+On the face of it, a digital currency sounds impossible.  Let's
+suppose someone --- we'll call her Alice --- wants to use a digital
+currency.  If Alice can use a string of bits as money, how can we
+prevent Alice from using the same bit string over and over, thus
+minting for herself an infinite supply of money?  And how can we
+prevent Bob or someone else forging such strings of bits, and using
+that to steal from Alice?
 
-These are just two of the many problems that need to be overcome in
-order to use information as currency.
+These are just two of the many problems that must be overcome in order
+to use information as currency.
 
-As a first version of our Infocoin protocol, let's find a way that
-Alice can use a string of bits as (very primitive form of) money,
-without allowing anyone else to forge that string, and thus steal from
-Alice.  To do this, Alice writes down the message "I, Alice, am giving
-Bob one Infocoin".  She then digitally signs the message using a
-private cryptographic key, and announces the signed string of bits to
-the entire world.
+As a first version of Infocoin, let's find a way that Alice can use a
+string of bits as a (very primitive) form of money, in a way that
+gives her at least some protection against forgery.  To do this, Alice
+writes down the message "I, Alice, am giving Bob one Infocoin".  She
+then digitally signs the message using a private cryptographic key,
+and announces the signed string of bits to the entire world.
 
 This isn't terribly impressive as a prototype for a digital currency!
-But it does achieve two things.  First, anyone in the world (including
-Bob) can then use Alice's public key to verify that Alice really did
-sign the message "I, Alice, am giving Bob one Infocoin".  This
-establishes that Alice truly intends to give Bob one Infocoin.
+But it does achieve two neat things.  First, anyone in the world
+(including Bob) can then use Alice's public key to verify that Alice
+really did sign the message "I, Alice, am giving Bob one Infocoin".
+This establishes that Alice truly intends to give Bob one Infocoin.
 
-Second, the procedure gives Alice at least some limited protection
-from forgery.  The reason is that only Alice has the private key used
-to sign the message.  Of course, once Alice has published her message
-it's possible for other people to duplicate the message, so in that
-sense forgery is possible.  But before that initial act of
-publication, there's no way someone else can forge that bit string.
+Second, the procedure gives Alice some limited protection from
+forgery.  The reason is that only Alice has the private key used to
+sign the message.  That means it's not possible for someone else,
+starting from scratch, to compose such a signed message. Of course,
+after Alice has published her message it's possible for other people
+to duplicate the message, so in that sense forgery is possible.  It's
+a bit like forging a conventional physical signature --- it can be
+done if you already have an original of someone's signature, but
+there's simply no way you can forge it if you've never even seen the
+signature.
 
 To put this in a slightly different way, suppose someone encounters
 the signed message ``I, Alice, am giving Bob one Infocoin''.  If they
@@ -646,6 +656,8 @@ fact that the block chain is linearly ordered.
 
 Alright, we've now understood the main ideas behind BitCoin.  Let's
 move away from Infocoin, and describe the actual BitCoin protocol.
+There are a few new ideas here, but with one exception (discussed
+below) they're mostly obvious modifications to Infocoin.
 
 You install a wallet program on your computer.  To give you a sense of
 what that means, here's a screenshot of a wallet program called
@@ -719,20 +731,23 @@ from the ouput from an earlier transaction, with the given
 \verb|hash|.  The \verb|n=0| tells us it's to be the first output from
 that transaction; we'll see soon how multiple outputs (and inputs)
 from a transaction work, so don't worry too much about this for now.
-Line 11 contains the signature, followed by a space, and then the
-public key of the person sending the money.  Note that the signature
-is for the data in lines 8 through 10. 
+Line 11 contains the signature of the person sending the money,
+followed by a space, and then the corresponding public key.  Note that
+the signature is for the data in lines 8 through 10.  In other words,
+you can think of this as a signed message from the person sending the
+money, saying where the funds are to come from.
 
 One thing to note about the input is that there's nothing explicitly
 specifying how many bitcoins from the previous transaction should be
-spent in this transaction.  In fact, all the bitcoins from the
-previous transaction are.  So, for example, if the earlier transaction
-had 2 bitcoins output, then 2 bitcoins will be spent in this
-transaction.  This is obviously inconvenient --- like trying to buy
-bread with a 20 dollar note, and not being able to break it down.  The
-solution, of course, is for the recipient to provide change.  This can
-easily be done using transactions with multiple inputs and outputs,
-which we'll discuss in the next section.
+spent in this transaction.  In fact, \emph{all} the bitcoins from the
+\verb|n=0|th output of the previous transaction are.  So, for example,
+if the \verb|n=0|th output of the earlier transaction was 2 bitcoins,
+then 2 bitcoins will be spent in this transaction.  This is obviously
+inconvenient --- like trying to buy bread with a 20 dollar note, and
+not being able to break the note down.  The solution, of course, is
+for the recipient to provide change.  This can be done using
+transactions with multiple inputs and outputs, which we'll discuss in
+the next section.
 
 Lines 12 through 14 define the output from the transaction.  In
 particular, line 13 tells us the value of the output, 0.39000000
@@ -1244,6 +1259,11 @@ There is also
 
 
 Bitcoin address shortener.
+
+
+You may wonder why the script is split into two parts.  The reason is
+that Bitcoin transactions can involve many inputs and many outputs.
+Each input needs XXX, while each output XXX.
 
 \section{Why anonymity and untraceability?}
 

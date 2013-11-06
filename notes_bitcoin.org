@@ -681,7 +681,7 @@ I think the title is pretty good.  It's not a great title, but it's at
 the 80-20 level.  Can I do any better?
 
 Is it really unfortunate?  I don't think that's quite the right way of
-thinking about it.
+thinking about it. 
 
 * Notes on essays, papers, videos, etc
 
@@ -1203,13 +1203,21 @@ Scripting gives us a flexible way of deciding when to allow the
 spending of transferred Bitcoins.  It could be time-delayed, it could
 require multiple private keys, it could require no keys at all
 
-Scripts come in two parts, one part associated with the input, the other with the output.
+Scripts come in two parts, one part associated with the input, the
+other with the output.
 
 Transaction is valid if: (a) combined script parses; (b) the top stack
 item is non-zero.
 
 The stacks hold byte vectors.
 
+Basically, the script says how the person the Bitcoins are being
+transferred too can gain access to the Bitcoins.
+
+The script comes in two parts.  The scriptSig, which is in the input.
+And the scriptPubKey, which is in the output.  WHy do this kind of
+splitting?  It's a natural consequence of the structure of the
+problem.  The 
 
 ** Szabo, "The Idea of Smart Contracts" (1997)
 
@@ -1282,6 +1290,43 @@ decline; rapid growth in the 1600s; more Malthusian decline in the
 second half of the 17th century.  Then growth during the 19th century.
 Szabo attempts to connect this to literacy.
 
+** Szabo on "The Birth of Insurance" (2005)
+
+http://szabo.best.vwh.net/insurance.html
+
+"In short succession Genoa developed insurance, insurance pools
+secured by landed estates, and reinsurance".  Apparently double-entry
+started at this time.  "Europeans became the first merchants to travel
+and trade around the entire globe."  I think it's hard to fully
+appreciate this point.  Comparative advantage is such an abstract
+thing; it's tempting to give 90% of the credit to the explores.  Yet
+the impact of globalized trade was obviously a huge change.
+
+Early insrance was apparently a bundled load + insurance.  If the ship
+wrecks, no loan payback necessary!  How remarkable.  Genoa saw the
+unbundling of insurance from the loan. 
+
+He quotes extensively from an early insurance contract!
+
+Notes that early insurance contracts were still, legally, loans.
+
+Buyer.  Premium gets transferred to Insurer.  I see, basically you
+view the insurance buyer as loaning the money to the insurer.  Then
+they have to repay in different ways, depending on how events play
+out.
+
+The first book on insurance: 1488.
+
+"By 1488...  Genoese investors and commercial practices played a
+leading role not only in the African trade, but in the colonization of
+the Atlantic Islands"
+
+Unfortunately, the article isn't very concrete.  It merely asserts how
+important insurance was, it doesn't actually show it directly.  He
+suggests that insurance was critical to Columbus and to Da Gama, and
+that it's the reason Portugal (backed by Genoa) was able to leapfrog
+China.  But his case isn't compelling; it's really left as a
+possibility.  It'd be interesting to know.
 
 ** Wenger 2013
 
