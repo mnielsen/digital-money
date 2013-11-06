@@ -1,5 +1,5 @@
 %
-% 8105
+% 8809
 %
 \documentclass[12pt]{book}
 
@@ -237,36 +237,33 @@
 \chapter{How Bitcoin actually works}
 
 %
-% what I do in this article
+% Background
 %
-This article explains in detail how the Bitcoin protocol works.  Of
-course, many thousands of articles ``explaining'' Bitcoin have been
-written.  Most of these articles are superficial, giving only a vague
-account of the underlying cryptographic ideas, and omitting many
-details.  Even those articles which delve deeper often gloss over
-crucial points.  Remarkably, this includes even the
-\link{http://bitcoin.org/bitcoin.pdf}{original paper} introducing
-Bitcoin, which was vague at a number of key points.  My aim in this
-article is to present all the major ideas behind the Bitcoin protocol
-in a clear, comprehensible way.
+Many thousands of articles have been written purporting to explain
+Bitcoin, the online, peer-to-peer currency.  Most of those articles
+give only a brief account of the underlying cryptographic protocol,
+and omit many details.  Even those articles which delve deeper often
+gloss over crucial points.  My aim in this post is to explain all the
+major ideas behind the Bitcoin protocol in a clear, easily
+comprehensible way.
 
 %
 % this all sounds like hard work
 %
-Understanding the protocol is hard work.  It is tempting to instead
+Understanding the protocol is hard work.  It is tempting instead to
 take Bitcoin as given, and to engage in speculation about how to get
-rich with Bitcoin, whether Bitcoin is a bubble, whether it means the
-end of taxation, and so on.  That's fun, but severely limits your
-understanding.  Understanding the details of the Bitcoin protocol
-opens up otherwise inaccessible vistas.  It makes it possible to
-understand how Bitcoin can be used to create new types of financial
-instrument, and, in turn, how those financial instruments can be used
+rich with Bitcoin, whether Bitcoin is a bubble, whether Bitcoin might
+one day mean the end of taxation, and so on.  That's fun, but severely
+limits your understanding.  Understanding the details of the Bitcoin
+protocol opens up otherwise inaccessible vistas.  It makes it possible
+to understand how Bitcoin can be used to create new types of financial
+instrument, and how, in turn, those financial instruments can be used
 to enable new forms of collective human behaviour.  Talk about fun!
 
 %
 % What you need as background
 %
-To understand this post, you'll need to be comfortable with
+To understand this post, you need to be comfortable with
 \link{http://en.wikipedia.org/wiki/Public-key_cryptography}{public key
   cryptography}, and with the closely related idea of
 \link{https://en.wikipedia.org/wiki/Digital_signature}{digital
@@ -281,52 +278,51 @@ them, I recommend taking a few hours to get familiar.
 % why does Bitcoin involve so much cryptography
 %
 It may seem surprising that Bitcoin's basis is cryptography.  Isn't
-Bitcoin a form of currency, not a way of sending secret messages?  But
-the problems that need to be solved to make Bitcoin work are largely
-about securing transactions -- making sure people can't steal from one
-another, that one person can't impersonate another, and so on.  In the
-world of atoms we achieve security with devices such as locks, safes,
-bank vaults, and security guards.  In the digital world this kind of
-security is achieved through cryptography.  And that's why Bitcoin is
-at heart a cryptographic protocol.
+Bitcoin a currency, not a way of sending secret messages?  But the
+problems that Bitcoin needs to solve are largely about securing
+transactions -- making sure people can't steal from one another, or
+impersonate one another, and so on.  In the world of atoms we achieve
+security with devices such as locks, safes, and bank vaults.  In the
+world of bits we achieve this kind of security with cryptography.  And
+that's why Bitcoin is at heart a cryptographic protocol.
+
+My strategy in the article is to build Bitcoin up in stages.  I'll
+begin by explaining a very simple digital currency, based on ideas
+that are almost obvious.  We'll call that currency \emph{Infocoin}, to
+distinguish it from Bitcoin.  Of course, our first version of Infocoin
+will have many deficiencies, and so we'll go through several
+iterations, with each iteration introducing one new idea. Eventually,
+we'll arrive at the full Bitcoin protocol.  We will have reinvented
+Bitcoin!
+
+This approach to explanation takes more time than if I explained the
+entire Bitcoin protocol in one shot.  But while you could understand
+the mechanics of Bitcoin through such a one-shot explanation, it would
+be difficult to understand in any deep way \emph{why} Bitcoin is
+designed the way it is.  The advantage of the slower iterative
+approach is that you'll have a sharp understanding of why each element
+of Bitcoin is the way it is.
 
 \section{First steps: a signed letter of intent}
 
 So how can we design a digital currency?  
 
-At first, digital currency sounds impossible.  If Alice can use a
-string of bits as money, how can we prevent Alice from using the same
-bit string over and over, thus minting an infinite supply of money for
-herself?  And how can we prevent Bob or someone else forging such
-strings of bits, effectively stealing from Alice?
+On the face of it, a digital currency sounds impossible.  If Alice can
+use a string of bits as money, how can we prevent Alice from using the
+same bit string over and over, thus minting for herself an infinite
+supply of money?  And how can we prevent Bob or someone else forging
+such strings of bits, effectively stealing from Alice?
 
 These are just two of the many problems that need to be overcome in
 order to use information as currency.
 
-Now, at this point I could explain the entire Bitcoin protocol in one
-shot, up-front.  It'd be relatively straightforward for you to
-understand the mechanics of the protocol, and you could understand how
-it solves the problems described above.  But while you'd understand
-the mechanics of the protocol, you wouldn't understand in any deep way
-\emph{why} Bitcoin is designed the way it is.
-
-For that reason, I'm instead going to build Bitcoin up in stages.
-I'll begin by explaining a very simple digital currency, based on
-ideas that are almost obvious.  We'll call that currency
-\emph{Infocoin}, to distinguish it from Bitcoin.  Of course, our first
-version of Infocoin will have many deficiencies!  We'll go through
-several iterations of Infocoin, with each iteration introducing one
-new idea.  This approach takes considerably longer than explaining
-Bitcoin in one shot, but the payoff is a deeper understanding of the
-full Bitcoin protocol.  In a sense we'll rediscover Bitcoin.
-
-Alright, as a first step, let's address one of the problems I
-mentioned above: let's find a way that Alice can use a string of bits
-as (very primitive form of) money, without allowing anyone else to
-forge that string, and thus steal from Alice.  To do this, Alice
-writes down the message "I, Alice, am giving Bob one Infocoin".  She
-then digitally signs the message using a private cryptographic key,
-and announces the signed string of bits to the entire world.
+As a first version of our Infocoin protocol, let's find a way that
+Alice can use a string of bits as (very primitive form of) money,
+without allowing anyone else to forge that string, and thus steal from
+Alice.  To do this, Alice writes down the message "I, Alice, am giving
+Bob one Infocoin".  She then digitally signs the message using a
+private cryptographic key, and announces the signed string of bits to
+the entire world.
 
 This isn't terribly impressive as a prototype for a digital currency!
 But it does achieve two things.  First, anyone in the world (including
@@ -952,6 +948,11 @@ issues.
 For now, though, I want to address just a few final issues.  Two are
 oddities in the 
 
+IN a later post I will explain the scripting system.  I will also
+explain how Bitcoin scripting can be used as a platform to experiment
+with all sorts of amazing financial instruments.  We'll see, for
+example, how it can be used to do a type of
+Kickstarter-at-the-protocol level...
 
 \textbf{Is Bitcoin secure?}  It's difficult to say.  Bitcoin is a
 relatively new protocol, and it's possible that scrutiny may find Many
@@ -975,6 +976,11 @@ ever seen.  Computer scientists have done a
 
 Note that not everyone in the Bitcoin network actually participates in
 mining.
+
+
+Remarkably, this includes even the
+\link{http://bitcoin.org/bitcoin.pdf}{original paper} introducing
+Bitcoin, which was vague at a number of key points, a vagueness only .
 
 \end{document}
 
